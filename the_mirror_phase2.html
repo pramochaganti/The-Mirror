@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>The Mirror</title>
+<style>
+  :root {
+    --green:#1f6f5c; --green-d:#185647; --green-lt:#2a8a71;
+    --mint:#e9f5f1; --mint-2:#d8ebe4;
+    --ink:#27332f; --muted:#7b8a85; --bg:#f4faf8; --card:#ffffff;
+    --warm:#fff7ec; --warm-b:#f0dcb8;
+    --shadow:0 6px 22px rgba(31,111,92,.10);
+    --shadow-sm:0 2px 10px rgba(31,111,92,.07);
+    /* durability */
+    --sprout:#059669; --sprout-bg:#ecfdf5; --sprout-light:#d1fae5;
+    --growing:#d97706; --growing-bg:#fffbeb; --growing-light:#fef3c7;
+    --finding:#7c3aed; --finding-bg:#f5f3ff; --finding-light:#ede9fe;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5;min-height:100vh;}
+  .wrap{max-width:520px;margin:0 auto;padding:18px 18px 100px;min-height:100vh}
+  .screen{display:none;animation:fade .3s ease}
+  .screen.active{display:block}
+
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes shimmer{0%,100%{opacity:.7}50%{opacity:1}}
+  @keyframes pulse-dot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}
+  @keyframes pop{0%{transform:scale(.88);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
+  @keyframes slideUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+  @keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(31,111,92,.25)}70%{box-shadow:0 0 0 10px rgba(31,111,92,0)}100%{box-shadow:0 0 0 0 rgba(31,111,92,0)}}
+
+  h1{font-size:26px;margin:0 0 4px;letter-spacing:-.4px}
+  h2{font-size:20px;margin:0 0 6px;letter-spacing:-.2px}
+  .muted{color:var(--muted)}
+  .small{font-size:13px}
+  .center{text-align:center}
+
+  /* Brand */
+  .brand{display:flex;align-items:center;gap:10px;justify-content:center;margin:30px 0 6px}
+  .logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--green),#2e9b80);
+    display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+  .logo svg{width:26px;height:26px}
+  .tagline{color:var(--muted);text-align:center;margin:0 0 26px;font-size:14.5px}
+
+  /* Cards */
+  .card{background:var(--card);border-radius:18px;padding:20px;box-shadow:var(--shadow-sm);margin-bottom:16px;border:1px solid #eef3f1}
+  .card.warm{background:var(--warm);border-color:var(--warm-b)}
+
+  /* Buttons */
+  .btn{appearance:none;border:none;font:inherit;cursor:pointer;border-radius:14px;
+    padding:15px 18px;font-weight:600;font-size:16px;width:100%;transition:transform .1s ease,box-shadow .2s,opacity .15s}
+  .btn:active{transform:scale(.97)}
+  .btn:disabled{opacity:.4;cursor:default;transform:none}
+  .btn-primary{background:var(--green);color:#fff;box-shadow:var(--shadow)}
+  .btn-ghost{background:var(--mint);color:var(--green-d)}
+  .btn-soft{background:#fff;color:var(--green-d);border:1.5px solid var(--mint-2)}
+  .btn-row{display:flex;gap:10px}
+  .btn-row .btn{width:auto;flex:1}
+
+  /* Role choice */
+  .choice{display:flex;gap:12px;margin-top:8px}
+  .choice .opt{flex:1;background:#fff;border:1.5px solid var(--mint-2);border-radius:16px;padding:22px 12px;text-align:center;cursor:pointer;transition:.15s}
+  .choice .opt:active{transform:scale(.97)}
+  .choice .opt .emoji{font-size:30px;display:block;margin-bottom:8px}
+  .choice .opt b{display:block;font-size:16px}
+  .choice .opt span{font-size:12.5px;color:var(--muted)}
+
+  /* Form */
+  input[type=text],input[type=password]{width:100%;padding:14px;border:1.5px solid var(--mint-2);border-radius:13px;font:inherit;background:#fff;margin-top:8px}
+  textarea{width:100%;min-height:120px;padding:15px;border:1.5px solid var(--mint-2);border-radius:15px;font:inherit;background:#fff;resize:vertical;line-height:1.5}
+  textarea:focus,input:focus{outline:none;border-color:var(--green)}
+
+  /* Prompt */
+  .prompt-label{display:inline-block;background:var(--mint);color:var(--green-d);font-size:11.5px;
+    font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:5px 11px;border-radius:20px;margin-bottom:12px}
+  .prompt-q{font-size:21px;font-weight:600;line-height:1.35;margin:0 0 4px;letter-spacing:-.2px}
+
+  /* Mic */
+  .mic{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;
+    background:#fff;border:1.5px solid var(--mint-2);border-radius:13px;padding:12px;color:var(--green-d);font-weight:600;cursor:pointer;transition:.15s}
+  .mic.rec{background:#ffeceb;border-color:#f3b6b1;color:#c0392b}
+  .mic svg{width:18px;height:18px}
+
+  /* Streak */
+  .streak{display:flex;align-items:center;gap:10px;background:var(--warm);border:1px solid var(--warm-b);
+    border-radius:14px;padding:12px 15px;margin-bottom:16px}
+  .streak .flame{font-size:22px}
+  .streak b{font-size:17px}
+
+  /* Entry items */
+  .entry{background:#fff;border:1px solid #eef3f1;border-radius:14px;padding:14px 16px;margin-bottom:10px}
+  .entry .when{font-size:12px;color:var(--muted);margin-bottom:4px}
+  .entry .eq{font-size:13px;color:var(--green-d);font-weight:600;margin-bottom:6px}
+  .entry .ea{font-size:15px;line-height:1.5}
+  .entry .dtags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+  .dtag{font-size:11.5px;padding:3px 9px;border-radius:20px;font-weight:600}
+  .dtag-main{background:var(--mint);color:var(--green-d)}
+  .dtag-pending{background:#f3f4f6;color:var(--muted);font-style:italic;font-weight:400}
+
+  /* Done card */
+  .done-check{width:72px;height:72px;border-radius:50%;background:var(--mint);display:flex;align-items:center;justify-content:center;margin:6px auto 14px}
+  .done-check svg{width:36px;height:36px}
+
+  /* ── PORTRAIT SCREEN ── */
+  .portrait-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+  .portrait-header h2{margin:0 0 2px}
+  .portrait-count{font-size:12px;background:var(--mint);color:var(--green-d);font-weight:700;
+    padding:5px 11px;border-radius:20px;white-space:nowrap;margin-top:2px}
+
+  .portrait-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
+  .ing-card{background:#fff;border-radius:16px;padding:16px 14px 14px;border:1px solid #eef3f1;
+    box-shadow:var(--shadow-sm);cursor:pointer;transition:transform .12s,box-shadow .2s;position:relative;overflow:hidden}
+  .ing-card:active{transform:scale(.96)}
+  .ing-card.selected{box-shadow:0 0 0 2px var(--green),var(--shadow-sm)}
+  .ing-card .ic-emoji{font-size:30px;display:block;margin-bottom:8px;line-height:1}
+  .ing-card .ic-name{font-size:13.5px;font-weight:700;line-height:1.3;margin-bottom:6px;color:var(--ink)}
+  .ing-card .ic-count{font-size:11px;color:var(--muted);margin-bottom:8px}
+  .dur-pill{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;
+    padding:3px 8px;border-radius:20px;line-height:1.4}
+  .dur-sprout{background:var(--sprout-bg);color:var(--sprout)}
+  .dur-growing{background:var(--growing-bg);color:var(--growing)}
+  .dur-finding{background:var(--finding-bg);color:var(--finding)}
+  .ing-card .ic-stripe{position:absolute;bottom:0;left:0;right:0;height:3px}
+  .ing-card.s-sprout .ic-stripe{background:var(--sprout-light)}
+  .ing-card.s-growing .ic-stripe{background:var(--growing-light)}
+  .ing-card.s-finding .ic-stripe{background:var(--finding-light)}
+
+  /* Expanded ingredient detail */
+  .ing-detail{background:#fff;border-radius:18px;padding:20px;box-shadow:var(--shadow);
+    margin-bottom:14px;border:1.5px solid var(--mint-2);animation:pop .25s ease;grid-column:1/-1}
+  .ing-detail-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .ing-detail-emoji{font-size:36px;line-height:1}
+  .id-sentence{font-size:16px;line-height:1.6;color:var(--ink);background:var(--mint);
+    border-radius:12px;padding:14px;margin:12px 0 14px;font-style:italic;border-left:3px solid var(--green)}
+  .confirm-row{display:flex;gap:8px}
+  .conf-btn{flex:1;border:1.5px solid transparent;font:inherit;cursor:pointer;border-radius:12px;
+    padding:11px 4px;font-size:13px;font-weight:600;transition:.12s;text-align:center}
+  .conf-btn:active{transform:scale(.95)}
+  .cb-yes{background:var(--sprout-bg);color:var(--sprout);border-color:var(--sprout-light)}
+  .cb-sort{background:var(--growing-bg);color:var(--growing);border-color:var(--growing-light)}
+  .cb-no{background:#f3f4f6;color:var(--muted);border-color:#e5e7eb}
+  .conf-btn.selected{border-color:currentColor;box-shadow:0 0 0 1px currentColor}
+  .kid-edit-wrap{margin-top:12px;animation:fade .2s ease}
+  .kid-edit-wrap textarea{min-height:70px;font-size:14px;background:var(--bg)}
+
+  /* Portrait empty state */
+  .portrait-empty{text-align:center;padding:48px 20px 36px}
+  .portrait-empty .pe-emoji{font-size:52px;display:block;margin-bottom:14px}
+  .portrait-empty h2{font-size:20px;margin:0 0 8px}
+  .portrait-empty p{color:var(--muted);font-size:14.5px;margin:0}
+
+  /* ── MIRROR SCREEN ── */
+  .mirror-ready-card{background:linear-gradient(145deg,#0a3527 0%,#1a5e44 55%,#0f4c38 100%);
+    border-radius:22px;padding:30px 24px 26px;margin-bottom:20px;text-align:center;cursor:pointer;
+    box-shadow:0 16px 48px rgba(10,53,39,.4);position:relative;overflow:hidden;border:none}
+  .mirror-ready-card::before{content:'';position:absolute;top:-60%;left:-30%;width:160%;height:220%;
+    background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.07) 50%,transparent 65%);
+    animation:shimmer 3s ease-in-out infinite;pointer-events:none}
+  .mirror-icon{font-size:56px;display:block;margin-bottom:16px;animation:pop .5s ease}
+  .mirror-ready-card h2{color:#fff;font-size:23px;margin:0 0 8px;font-weight:700}
+  .mirror-ready-card p{color:rgba(255,255,255,.72);margin:0 0 22px;font-size:15px;line-height:1.5}
+  .open-mirror-btn{background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.4);
+    border-radius:14px;padding:14px 24px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;
+    width:100%;backdrop-filter:blur(4px);transition:.15s;letter-spacing:.1px}
+  .open-mirror-btn:active{background:rgba(255,255,255,.28);transform:scale(.98)}
+
+  /* Observation cards */
+  .mirror-intro{background:var(--warm);border:1px solid var(--warm-b);border-radius:14px;
+    padding:14px 16px;margin-bottom:20px;font-size:14px;color:var(--ink)}
+  .mirror-intro strong{color:var(--green-d)}
+
+  .obs-card{background:#fff;border-radius:18px;overflow:hidden;border:1px solid #eef3f1;
+    box-shadow:var(--shadow-sm);margin-bottom:14px;animation:slideUp .3s ease both}
+  .obs-card:nth-child(2){animation-delay:.07s}
+  .obs-card:nth-child(3){animation-delay:.14s}
+  .obs-body{padding:20px}
+  .obs-num{font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .obs-text{font-size:17px;line-height:1.55;font-weight:500;color:var(--ink);margin-bottom:18px}
+  .resp-row{display:flex;gap:8px}
+  .resp-btn{flex:1;border:1.5px solid;font:inherit;cursor:pointer;border-radius:12px;padding:12px 4px;
+    font-size:13px;font-weight:700;transition:.12s;background:#fff;text-align:center}
+  .resp-btn:active{transform:scale(.95)}
+  .rb-yes{border-color:var(--sprout-light);color:var(--sprout)}
+  .rb-sort{border-color:var(--growing-light);color:var(--growing)}
+  .rb-no{border-color:#e5e7eb;color:var(--muted)}
+  .resp-btn.selected.rb-yes{background:var(--sprout);border-color:var(--sprout);color:#fff}
+  .resp-btn.selected.rb-sort{background:var(--growing);border-color:var(--growing);color:#fff}
+  .resp-btn.selected.rb-no{background:var(--muted);border-color:var(--muted);color:#fff}
+  .obs-edit-wrap{padding:0 20px 18px;animation:fade .2s ease}
+  .obs-edit-wrap textarea{min-height:68px;font-size:14px;margin-top:0;background:var(--bg)}
+  .obs-stripe{height:4px}
+
+  /* Mirror complete card */
+  .mirror-done-card{background:linear-gradient(135deg,var(--green) 0%,#2a9a7c 100%);
+    border-radius:20px;padding:30px;text-align:center;color:#fff;animation:pop .4s ease;margin-bottom:16px}
+  .mirror-done-card .done-emoji{font-size:50px;display:block;margin-bottom:16px}
+  .mirror-done-card h2{color:#fff;margin:0 0 10px;font-size:22px}
+  .mirror-done-card p{color:rgba(255,255,255,.82);margin:0;font-size:15px;line-height:1.5}
+
+  /* Mirror waiting state */
+  .mirror-wait{text-align:center;padding:44px 20px 32px}
+  .mirror-wait .big-emoji{font-size:56px;display:block;margin-bottom:16px}
+  .mirror-wait h2{font-size:20px;color:var(--ink);margin:0 0 8px}
+  .mirror-wait p{color:var(--muted);font-size:14.5px;margin:0 0 16px;line-height:1.55}
+
+  /* Progress dots (entries needed) */
+  .entry-dots{display:flex;justify-content:center;gap:8px;margin-top:16px}
+  .edot{width:10px;height:10px;border-radius:50%;border:2px solid var(--mint-2);transition:.3s}
+  .edot.done{background:var(--green);border-color:var(--green)}
+
+  /* Thinking dots */
+  .thinking{display:inline-flex;align-items:center;gap:4px}
+  .thinking span{width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;animation:pulse-dot 1.2s infinite}
+  .thinking span:nth-child(2){animation-delay:.2s}
+  .thinking span:nth-child(3){animation-delay:.4s}
+
+  /* Toast */
+  .toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(10px);
+    background:var(--ink);color:#fff;padding:11px 20px;border-radius:20px;font-size:14px;font-weight:500;
+    opacity:0;transition:opacity .3s,transform .3s;z-index:2000;white-space:nowrap;pointer-events:none;
+    max-width:calc(100vw - 40px);text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.22)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* Tab bar */
+  .tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;background:#fff;
+    border-top:1px solid #e7efec;display:flex;max-width:520px;
+    box-shadow:0 -4px 20px rgba(0,0,0,.05);z-index:100}
+  .tabbar button{flex:1;border:none;background:none;padding:10px 0 8px;font:inherit;color:var(--muted);cursor:pointer;
+    font-size:10.5px;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;transition:.12s}
+  .tabbar button.on{color:var(--green)}
+  .tabbar svg{width:22px;height:22px}
+  .tab-badge{position:absolute;top:7px;right:calc(50% - 16px);width:8px;height:8px;
+    background:var(--growing);border-radius:50%;border:2px solid #fff;animation:pulse-dot 2s infinite}
+
+  /* Misc */
+  .link{color:var(--green);text-decoration:none;font-weight:600;font-size:14px;cursor:pointer}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .pill-user{font-size:13px;color:var(--muted)}
+  .hidden{display:none!important}
+  .note{font-size:12.5px;color:var(--muted);margin-top:10px}
+  .divider{height:1px;background:#eef3f1;margin:18px 0}
+  pre.export{white-space:pre-wrap;background:#0f201b;color:#cfe8e1;padding:14px;border-radius:12px;
+    font-size:12px;max-height:260px;overflow:auto;margin-top:10px}
+  .status-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin:8px 0 0}
+  .sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .sdot-green{background:#10b981}
+  .sdot-gray{background:#d1d5db}
+  .sdot-amber{background:var(--growing);animation:pulse-dot 2s infinite}
+
+  /* ── SYNC / SETUP SCREENS ── */
+  .device-choice{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+  .device-opt{background:#fff;border:1.5px solid var(--mint-2);border-radius:16px;
+    padding:18px 16px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:14px}
+  .device-opt:active{transform:scale(.98);background:var(--mint)}
+  .device-opt .do-icon{font-size:28px;flex-shrink:0}
+  .device-opt .do-text b{display:block;font-size:15px;margin-bottom:2px}
+  .device-opt .do-text span{font-size:13px;color:var(--muted)}
+  .code-box{font-size:30px;font-weight:800;letter-spacing:5px;color:var(--green);
+    background:var(--mint);border-radius:14px;padding:18px 10px;margin-bottom:4px;
+    font-family:'Courier New',monospace;text-align:center;user-select:all}
+  .sync-badge{display:inline-flex;align-items:center;gap:6px;background:var(--sprout-bg);
+    color:var(--sprout);border-radius:20px;padding:5px 12px;font-size:12.5px;font-weight:700;margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ───────── MODE SETUP (first time) ───────── -->
+<section id="s-setup" class="screen">
+  <div class="brand">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#fff" stroke-width="2"/><path d="M12 7c-2.5 1.5-2.5 8 0 10" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
+    <h1>The Mirror</h1>
+  </div>
+  <p class="tagline">A tiny daily check-in. No tests, no scores —<br>just noticing what pulls you in.</p>
+  <div class="card">
+    <h2>How's your family using this?</h2>
+    <p class="muted small" style="margin:0 0 4px">You can change this later in the Grown-up corner.</p>
+    <div class="device-choice">
+      <div class="device-opt" onclick="chooseMode('local')">
+        <span class="do-icon">📱</span>
+        <div class="do-text"><b>One shared device</b><span>Kid and parent both log in on this phone or tablet</span></div>
+      </div>
+      <div class="device-opt" onclick="show('s-sync-setup')">
+        <span class="do-icon">📲</span>
+        <div class="do-text"><b>Separate devices</b><span>Each person uses their own phone — data syncs automatically</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── SYNC SETUP ───────── -->
+<section id="s-sync-setup" class="screen">
+  <div style="height:24px"></div>
+  <div class="card">
+    <h2>Sync across devices</h2>
+    <p class="muted small" style="margin:0 0 16px">Create a family code on one device, then enter it on the other to link them.</p>
+    <button class="btn btn-primary" id="createHhBtn" onclick="createHousehold()">Create a family code</button>
+    <div class="divider" style="position:relative">
+      <span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;padding:0 12px;color:var(--muted);font-size:13px">or join an existing one</span>
+    </div>
+    <input type="text" id="joinCodeInput" placeholder="Family code (e.g. FLUX-8724)"
+      style="text-transform:uppercase;letter-spacing:1.5px;font-size:17px" autocomplete="off">
+    <div style="height:10px"></div>
+    <button class="btn btn-ghost" onclick="joinHousehold()">Join this household →</button>
+    <p class="small muted" id="syncStatus" style="margin-top:10px;min-height:18px"></p>
+  </div>
+  <p class="center"><span class="link" onclick="show('s-setup')">← back</span></p>
+</section>
+
+<!-- ───────── HOUSEHOLD CREATED ───────── -->
+<section id="s-sync-created" class="screen">
+  <div style="height:24px"></div>
+  <div class="card center">
+    <p style="font-size:44px;margin:0 0 10px">🏠</p>
+    <h2 style="margin-bottom:8px">Family code created</h2>
+    <p class="small muted" style="margin:0 0 18px">Share this code with the other person — they'll enter it on their device to join.</p>
+    <div id="codeDisplay" class="code-box"></div>
+    <button class="btn btn-ghost" style="margin-top:10px" onclick="copyCode()">Copy code 📋</button>
+    <div style="height:10px"></div>
+    <button class="btn btn-primary" onclick="proceedToOnboard()">Continue on this device →</button>
+    <p class="note">Keep this code safe — it's how both devices stay linked.</p>
+  </div>
+</section>
+
+<!-- ───────── ONBOARDING ───────── -->
+<section id="s-onboard" class="screen active">
+  <div class="brand">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#fff" stroke-width="2"/><path d="M12 7c-2.5 1.5-2.5 8 0 10" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
+    <h1>The Mirror</h1>
+  </div>
+  <p class="tagline">A tiny daily check-in. No tests, no scores —<br>just noticing what pulls you in.</p>
+  <div class="card">
+    <h2>Who's here?</h2>
+    <div class="choice">
+      <div class="opt" onclick="chooseRole('kid')"><span class="emoji">🌱</span><b>Me</b><span>I'm doing the daily drop</span></div>
+      <div class="opt" onclick="chooseRole('parent')"><span class="emoji">🪴</span><b>Parent</b><span>I'm noticing alongside</span></div>
+    </div>
+  </div>
+  <p class="center"><span class="link" onclick="show('s-grownup')">Grown-up corner · setup &amp; export</span></p>
+</section>
+
+<!-- ───────── NAME ───────── -->
+<section id="s-name" class="screen">
+  <div style="height:24px"></div>
+  <div class="card">
+    <h2 id="nameTitle">What should we call you?</h2>
+    <p class="muted small" id="nameSub">First name or a nickname is perfect.</p>
+    <input type="text" id="nameInput" placeholder="Type a name…" autocomplete="off">
+    <div style="height:14px"></div>
+    <button class="btn btn-primary" onclick="saveName()">That's me →</button>
+    <p class="note" id="nameNote">Your answers live only on this device. Nothing is shared unless you choose to.</p>
+  </div>
+  <p class="center"><span class="link" onclick="show('s-onboard')">← back</span></p>
+</section>
+
+<!-- ───────── KID HOME (Today) ───────── -->
+<section id="s-kid" class="screen">
+  <div class="topbar">
+    <div><b id="kidHi">Hi</b> <span class="pill-user" id="kidName"></span></div>
+    <span class="link" onclick="switchUser()">switch</span>
+  </div>
+  <div class="streak" id="kidStreak">
+    <span class="flame">🔥</span>
+    <div><b id="streakNum">0</b> <span class="muted">days of noticing</span></div>
+  </div>
+  <div id="kidPromptCard" class="card">
+    <span class="prompt-label" id="promptKind">Today's drop</span>
+    <p class="prompt-q" id="promptQ">…</p>
+    <p class="muted small">A line or two is plenty. There's no wrong answer.</p>
+    <textarea id="answer" placeholder="Start typing…"></textarea>
+    <div class="mic" id="micBtn" onclick="toggleMic()">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" stroke-width="2"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span id="micLabel">Or say it out loud</span>
+    </div>
+    <div style="height:14px"></div>
+    <button class="btn btn-primary" id="saveBtn" onclick="saveAnswer()">Save today's drop</button>
+  </div>
+  <div id="kidDoneCard" class="card warm hidden center">
+    <div class="done-check">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#1f6f5c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h2>That's today, done.</h2>
+    <p class="muted" id="doneMsg">Nice. Little by little, a picture of you shows up.</p>
+    <button class="btn btn-soft" onclick="editToday()">Edit today's drop</button>
+  </div>
+</section>
+
+<!-- ───────── KID LOG (Week) ───────── -->
+<section id="s-kidlog" class="screen">
+  <div class="topbar"><h2>Your week of noticing</h2></div>
+  <div id="kidEntries"></div>
+  <div id="kidEmpty" class="card center muted hidden" style="padding:30px">Nothing here yet. Your first drop will show up here.</div>
+</section>
+
+<!-- ───────── KID PORTRAIT ───────── -->
+<section id="s-portrait" class="screen">
+  <div class="portrait-header">
+    <div>
+      <h2>What pulls you</h2>
+      <p class="small muted" style="margin:0">Gathered from your drops, over time</p>
+    </div>
+    <span id="ingCount" class="portrait-count hidden"></span>
+  </div>
+
+  <div id="portraitEmpty" class="portrait-empty">
+    <span class="pe-emoji">🪞</span>
+    <h2>Your portrait is starting</h2>
+    <p>Drop a few more times and your pulls will begin showing up here.</p>
+  </div>
+
+  <div id="portraitGrid" class="portrait-grid"></div>
+  <p class="small muted center" id="portraitLastDec" style="margin-top:0;padding-bottom:6px"></p>
+</section>
+
+<!-- ───────── WEEKLY MIRROR ───────── -->
+<section id="s-mirror" class="screen">
+  <div class="topbar">
+    <div>
+      <h2>Your mirror</h2>
+      <p class="small muted" style="margin:0">A weekly reflection, just for you</p>
+    </div>
+  </div>
+  <div id="mirrorContent"></div>
+</section>
+
+<!-- ───────── PARENT HOME ───────── -->
+<section id="s-parent" class="screen">
+  <div class="topbar">
+    <div><b>Noticing</b> <span class="pill-user" id="parentKidName"></span></div>
+    <span class="link" onclick="switchUser()">switch</span>
+  </div>
+  <div class="card warm">
+    <p class="small" style="margin:0">You're keeping your <b>own</b> notes — your child doesn't see these. Later, you'll compare what each of you noticed. The gaps are usually the interesting part.</p>
+  </div>
+  <div class="card">
+    <span class="prompt-label">This week, notice…</span>
+    <p class="prompt-q" id="pPromptQ">…</p>
+    <textarea id="pAnswer" placeholder="A quick observation…"></textarea>
+    <div style="height:12px"></div>
+    <button class="btn btn-primary" onclick="saveParent()">Save note</button>
+    <p class="note">Try for 2–3 short notes a week. Watch, don't quiz.</p>
+  </div>
+  <div id="parentEntries"></div>
+</section>
+
+<!-- ───────── GROWN-UP CORNER ───────── -->
+<section id="s-grownup" class="screen">
+  <div class="topbar"><h2>Grown-up corner</h2><span class="link" onclick="show('s-onboard')">done</span></div>
+
+  <!-- Sync Status -->
+  <div class="card" id="syncStatusCard">
+    <h2 style="font-size:16px;margin-bottom:4px">🔗 Sync</h2>
+    <div id="syncStatusBody"></div>
+  </div>
+
+  <!-- AI Setup (shown only in local/file mode — hidden when hosted on Vercel) -->
+  <div class="card" id="apiKeyCard">
+    <h2 style="font-size:16px;margin-bottom:4px">🧠 AI brain</h2>
+    <p class="small muted" style="margin:0 0 12px">Enter your Anthropic API key to activate the decipher engine and weekly mirror. The key is stored only on this device.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-…" autocomplete="off">
+    <div style="height:10px"></div>
+    <button class="btn btn-primary" onclick="saveApiKey()">Save key</button>
+    <div id="apiStatus" class="status-row hidden">
+      <span class="sdot sdot-green"></span><span id="apiStatusText">Key saved</span>
+    </div>
+    <p class="note">Get a key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--green)">console.anthropic.com</a>. Haiku is used for per-entry reads; Sonnet for weekly mirrors.</p>
+  </div>
+
+  <!-- Reprocess -->
+  <div class="card">
+    <h2 style="font-size:16px;margin-bottom:4px">🔄 Process past entries</h2>
+    <p class="small muted" style="margin:0 0 12px">Run the AI over entries that haven't been deciphered yet. Useful after importing Phase 1 data or setting up the key for the first time.</p>
+    <button class="btn btn-ghost" id="reprocessBtn" onclick="reprocessAll()">Process all unread drops</button>
+    <p class="small muted" id="reprocessStatus" style="margin-top:8px"></p>
+  </div>
+
+  <!-- Manual mirror trigger -->
+  <div class="card">
+    <h2 style="font-size:16px;margin-bottom:4px">🪞 Trigger mirror now</h2>
+    <p class="small muted" style="margin:0 0 12px">Force-generate this week's mirror for a kid (useful for testing any day of the week). Select a kid profile first.</p>
+    <div id="mirrorTriggerSelect" style="margin-bottom:10px"></div>
+    <button class="btn btn-ghost" onclick="forceMirror()">Generate mirror now</button>
+    <p class="small muted" id="mirrorTriggerStatus" style="margin-top:8px"></p>
+  </div>
+
+  <!-- Export -->
+  <div class="card">
+    <h2 style="font-size:16px;margin-bottom:4px">📤 Export</h2>
+    <button class="btn btn-primary" onclick="buildExport()">Export everything</button>
+    <button class="btn btn-soft" style="margin-top:10px" onclick="copyExport()">Copy to clipboard</button>
+    <pre class="export hidden" id="exportBox"></pre>
+  </div>
+
+  <!-- Wipe -->
+  <div class="card">
+    <p class="small muted" style="margin:0 0 10px">Danger zone — clears all saved drops on this device.</p>
+    <button class="btn btn-soft" style="color:#c0392b;border-color:#f3c4bf" onclick="wipe()">Erase all data</button>
+  </div>
+</section>
+
+</div><!-- /wrap -->
+
+<!-- Toast -->
+<div class="toast" id="globalToast"></div>
+
+<!-- Tab bar -->
+<nav class="tabbar hidden" id="tabbar"></nav>
+
+<script>
+'use strict';
+
+// ─────────────────────────────────────────
+//  SYNC CONFIG
+// ─────────────────────────────────────────
+// When hosted on Vercel, AI calls go through /api/claude (key is server-side).
+// When opened as a local HTML file, falls back to direct Anthropic call + localStorage key.
+const IS_HOSTED = !['localhost','127.0.0.1',''].includes(window.location.hostname);
+const CLAUDE_ENDPOINT = IS_HOSTED ? '/api/claude' : 'https://api.anthropic.com/v1/messages';
+
+const SYNC_MODE_KEY   = 'mirror_sync_mode';   // 'local' | 'sync'
+const FAMILY_CODE_KEY = 'mirror_family_code';
+
+function getSyncMode()   { return localStorage.getItem(SYNC_MODE_KEY); }
+function getFamilyCode() { return localStorage.getItem(FAMILY_CODE_KEY); }
+function isSyncMode()    { return getSyncMode() === 'sync'; }
+
+// ─────────────────────────────────────────
+//  CONSTANTS
+// ─────────────────────────────────────────
+const DAILY_PROMPTS = [
+  "What made you lose track of time today?",
+  "What did you do when nothing was required of you?",
+  "What made you curious — something you wanted to understand better?",
+  "What drained you or made you want to leave the room?",
+  "What did someone come to you for, or thank you for?",
+  "What annoyed you that other people didn't seem to mind?",
+  "What did you make, fix, build, or figure out today?",
+  "What did you watch, read, or scroll — then go deeper on after?"
+];
+const WHY_PROMPT = "Pick one thing this week you kept coming back to. Why that one? What was it about it?";
+const PARENT_PROMPTS = [
+  "What did they gravitate toward this week, without being asked?",
+  "What did they light up talking about?",
+  "What did they avoid or drag their feet on?",
+  "Did anything about them surprise you this week?"
+];
+const DONE_MSGS = [
+  "Nice. Little by little, a picture of you shows up.",
+  "Saved. The more you notice, the clearer it gets.",
+  "Done for today. No rush — this is yours.",
+  "Got it. Come back tomorrow for the next one."
+];
+
+const INGREDIENT_META = {
+  'building/making':             { emoji: '🔨', label: 'Making things' },
+  'understanding-why/systems':   { emoji: '🔬', label: 'How things work' },
+  'helping-others-understand':   { emoji: '💡', label: 'Explaining & teaching' },
+  'caring-for-people':           { emoji: '🤝', label: 'Caring for others' },
+  'organizing/structuring':      { emoji: '📐', label: 'Organizing & structuring' },
+  'performing/expressing':       { emoji: '🎭', label: 'Performing & expressing' },
+  'competing/winning':           { emoji: '🏆', label: 'Competing & achieving' },
+  'aesthetics/craft':            { emoji: '✨', label: 'Craft & aesthetics' },
+  'storytelling/narrative':      { emoji: '📖', label: 'Storytelling' },
+  'exploring/novelty':           { emoji: '🧭', label: 'Exploring new things' },
+  'persuading/leading':          { emoji: '🎯', label: 'Leading & persuading' },
+  'analyzing/numbers':           { emoji: '📊', label: 'Analyzing & numbers' },
+  'nature/living-things':        { emoji: '🌿', label: 'Nature & living things' },
+  'hands-on/physical':           { emoji: '⚡', label: 'Hands-on & physical' }
+};
+
+const DUR = {
+  exploring: { label: 'Just sprouting',    emoji: '🌱', cls: 'dur-sprout',  cardCls: 's-sprout',  color: 'var(--sprout)'  },
+  staying:   { label: 'Growing strong',    emoji: '🌿', cls: 'dur-growing', cardCls: 's-growing', color: 'var(--growing)' },
+  finding:   { label: 'Still discovering', emoji: '🍃', cls: 'dur-finding', cardCls: 's-finding', color: 'var(--finding)' }
+};
+
+// ─────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────
+let state = loadState();
+
+function loadState() {
+  // Try v2 first
+  const v2 = localStorage.getItem('mirror_v2');
+  if (v2) { try { return JSON.parse(v2); } catch(e){} }
+  // Migrate from v1
+  const v1 = localStorage.getItem('mirror_v1');
+  if (v1) {
+    try {
+      const old = JSON.parse(v1);
+      const ns = { users: {}, current: old.current || null };
+      for (const [id, u] of Object.entries(old.users || {})) {
+        ns.users[id] = { ...u, portrait: initPortrait() };
+      }
+      return ns;
+    } catch(e) {}
+  }
+  return { users: {}, current: null };
+}
+
+function initPortrait() {
+  return { ingredients: {}, weeklyMirrors: [], lastDeciphered: null };
+}
+
+function save() {
+  localStorage.setItem('mirror_v2', JSON.stringify(state));
+  if (isSyncMode()) syncPush(); // async, fire-and-forget
+}
+
+function todayKey() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function dayNum() { return Math.floor(Date.now() / 864e5); }
+function uid(role, name) { return role + ':' + name.trim().toLowerCase(); }
+function cur() { return state.current ? state.users[state.current] : null; }
+
+function getWeekKey(dateStr) {
+  // Returns the Monday of the week containing dateStr
+  const d = new Date(dateStr + 'T12:00:00');
+  const day = d.getDay(); // 0=Sun
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+// ─────────────────────────────────────────
+//  NAVIGATION
+// ─────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  const kidTabs = ['s-kid','s-kidlog','s-portrait','s-mirror'];
+  const parentTabs = ['s-parent'];
+  const showTabs = kidTabs.includes(id) || parentTabs.includes(id);
+  document.getElementById('tabbar').classList.toggle('hidden', !showTabs);
+  if (showTabs) renderTabs(id);
+  if (id === 's-grownup') renderSyncStatus();
+}
+
+function renderTabs(active) {
+  const u = cur();
+  if (!u) return;
+  const tb = document.getElementById('tabbar');
+  if (u.role === 'kid') {
+    const weekKey = getWeekKey(todayKey());
+    const hasMirror = u.portrait.weeklyMirrors.some(m => m.week === weekKey && m.status === 'ready' && !m.completed);
+    tb.innerHTML = `
+      <button class="${active==='s-kid'?'on':''}" onclick="renderKid();show('s-kid')">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3" stroke="currentColor" stroke-width="2"/><path d="M5 20c0-4 3-7 7-7s7 3 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Today</button>
+      <button class="${active==='s-kidlog'?'on':''}" onclick="renderKidLog();show('s-kidlog')">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2"/><path d="M8 9h8M8 13h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Week</button>
+      <button class="${active==='s-portrait'?'on':''}" onclick="renderPortrait();show('s-portrait')">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3C8.686 3 6 5.686 6 9c0 2.21 1.2 4.14 3 5.196V17h6v-2.804A6 6 0 0 0 18 9c0-3.314-2.686-6-6-6z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 17v1a3 3 0 0 0 6 0v-1" stroke="currentColor" stroke-width="2"/></svg>
+        Pulls</button>
+      <button id="tabMirror" class="${active==='s-mirror'?'on':''}" onclick="renderMirror();show('s-mirror')">
+        <svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="9" rx="6" ry="7" stroke="currentColor" stroke-width="2"/><path d="M8 19h8M12 16v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Mirror${hasMirror ? '<div class="tab-badge"></div>' : ''}</button>`;
+  } else {
+    tb.innerHTML = `
+      <button class="on" onclick="renderParent();show('s-parent')">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M5 10c3 0 7 0 7 4M19 10c-3 0-7 0-7 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Notice</button>`;
+  }
+}
+
+// ─────────────────────────────────────────
+//  ROLE / NAME / ENTER
+// ─────────────────────────────────────────
+let pendingRole = null;
+function chooseRole(role) {
+  pendingRole = role;
+  document.getElementById('nameTitle').textContent = role === 'kid' ? "What should we call you?" : "Your child's name?";
+  document.getElementById('nameSub').textContent   = role === 'kid' ? "First name or a nickname is perfect." : "So your notes line up with their drops.";
+  document.getElementById('nameNote').textContent  = role === 'kid' ? "Your answers live only on this device. Nothing is shared unless you choose to." : "Your observations are kept separate — the comparison moment comes later.";
+  document.getElementById('nameInput').value = '';
+  show('s-name');
+  setTimeout(() => document.getElementById('nameInput').focus(), 200);
+}
+function saveName() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) { document.getElementById('nameInput').focus(); return; }
+  const id = uid(pendingRole, name);
+  if (!state.users[id]) {
+    state.users[id] = { role: pendingRole, name, entries: [], created: todayKey(), portrait: initPortrait() };
+  } else if (!state.users[id].portrait) {
+    state.users[id].portrait = initPortrait();
+  }
+  state.current = id;
+  save();
+  enter();
+}
+function switchUser() { state.current = null; save(); show('s-onboard'); }
+function enter() {
+  const u = cur();
+  if (!u) { show('s-onboard'); return; }
+  if (u.role === 'kid') { renderKid(); show('s-kid'); }
+  else { renderParent(); show('s-parent'); }
+}
+
+// ─────────────────────────────────────────
+//  KID — TODAY
+// ─────────────────────────────────────────
+function pickPrompt() {
+  const d = new Date();
+  if (d.getDay() === 0) return { kind: 'Weekly · the why', q: WHY_PROMPT, why: true };
+  return { kind: "Today's drop", q: DAILY_PROMPTS[dayNum() % DAILY_PROMPTS.length], why: false };
+}
+function todayEntry() { const u = cur(); return u.entries.find(e => e.date === todayKey()); }
+function renderKid() {
+  const u = cur();
+  document.getElementById('kidName').textContent   = u.name;
+  document.getElementById('kidHi').textContent     = 'Hi, ' + u.name.split(' ')[0];
+  document.getElementById('streakNum').textContent = computeStreak(u);
+  const p = pickPrompt();
+  document.getElementById('promptKind').textContent = p.kind;
+  document.getElementById('promptQ').textContent    = p.q;
+  const te = todayEntry();
+  if (te) showDone(); else showPromptForm();
+}
+function showPromptForm() {
+  document.getElementById('kidPromptCard').classList.remove('hidden');
+  document.getElementById('kidDoneCard').classList.add('hidden');
+  const te = todayEntry();
+  document.getElementById('answer').value = te ? te.text : '';
+}
+function showDone() {
+  document.getElementById('kidPromptCard').classList.add('hidden');
+  document.getElementById('kidDoneCard').classList.remove('hidden');
+  document.getElementById('doneMsg').textContent = DONE_MSGS[dayNum() % DONE_MSGS.length];
+}
+function editToday() { showPromptForm(); }
+
+function saveAnswer() {
+  const t = document.getElementById('answer').value.trim();
+  if (!t) { document.getElementById('answer').focus(); return; }
+  const u = cur();
+  const p = pickPrompt();
+  const k = todayKey();
+  let e = u.entries.find(x => x.date === k);
+  if (e) { e.text = t; e.q = p.q; e.deciphered = false; delete e.decipher; }
+  else   { u.entries.push({ date: k, ts: Date.now(), q: p.q, kind: p.why ? 'why' : 'daily', text: t, deciphered: false }); }
+  save();
+  document.getElementById('streakNum').textContent = computeStreak(u);
+  showDone();
+  // Fire-and-forget decipher
+  if (localStorage.getItem('mirror_apikey')) {
+    setTimeout(() => runDecipher(state.current, k), 400);
+  }
+}
+
+function computeStreak(u) {
+  if (!u.entries.length) return 0;
+  const days = new Set(u.entries.map(e => e.date));
+  let streak = 0, d = new Date();
+  for (;;) {
+    const k = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    if (days.has(k)) { streak++; d.setDate(d.getDate() - 1); }
+    else if (streak === 0 && k === todayKey()) { d.setDate(d.getDate() - 1); }
+    else break;
+  }
+  return streak;
+}
+
+// ─────────────────────────────────────────
+//  KID — WEEK LOG
+// ─────────────────────────────────────────
+function renderKidLog() {
+  const u = cur();
+  const sorted = [...u.entries].sort((a,b) => b.ts - a.ts);
+  document.getElementById('kidEmpty').classList.toggle('hidden', sorted.length > 0);
+  document.getElementById('kidEntries').innerHTML = sorted.map(e => {
+    const tags = e.decipher ? e.decipher.ingredients : [];
+    const pending = !e.deciphered && !!localStorage.getItem('mirror_apikey');
+    const tagsHtml = tags.length
+      ? `<div class="dtags">${tags.map(tag => {
+          const m = INGREDIENT_META[tag];
+          return `<span class="dtag dtag-main">${m ? m.emoji + ' ' + m.label : tag}</span>`;
+        }).join('')}</div>`
+      : (pending ? `<div style="margin-top:8px;display:flex;align-items:center;gap:6px"><div class="thinking"><span></span><span></span><span></span></div><span class="small muted">reading…</span></div>` : '');
+    return `<div class="entry">
+      <div class="when">${niceDate(e.date)}${e.kind==='why'?' · the why':''}</div>
+      <div class="eq">${esc(e.q)}</div>
+      <div class="ea">${esc(e.text)}</div>
+      ${tagsHtml}
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────
+//  KID — PORTRAIT
+// ─────────────────────────────────────────
+let openIng = null;
+
+function renderPortrait() {
+  const u = cur();
+  const p = u.portrait;
+  const ings = Object.entries(p.ingredients).filter(([,v]) => v.count > 0);
+  const grid   = document.getElementById('portraitGrid');
+  const empty  = document.getElementById('portraitEmpty');
+  const count  = document.getElementById('ingCount');
+  const lastDec = document.getElementById('portraitLastDec');
+
+  openIng = null;
+
+  if (ings.length === 0) {
+    grid.innerHTML = '';
+    empty.classList.remove('hidden');
+    count.classList.add('hidden');
+    lastDec.textContent = '';
+    return;
+  }
+  empty.classList.add('hidden');
+  count.classList.remove('hidden');
+  count.textContent = ings.length + (ings.length === 1 ? ' pull' : ' pulls');
+
+  const sorted = ings.sort(([,a],[,b]) => b.count - a.count);
+
+  grid.innerHTML = sorted.map(([tag, ing]) => {
+    const meta = INGREDIENT_META[tag] || { emoji: '✦', label: tag };
+    const dur  = DUR[ing.durabilityLabel] || DUR.exploring;
+    const wks  = ing.weeks ? ing.weeks.length : 1;
+    return `<div class="ing-card ${dur.cardCls}" id="icard-${tag.replace(/\//g,'_')}" onclick="toggleIngDetail('${tag}')">
+      <span class="ic-emoji">${meta.emoji}</span>
+      <div class="ic-name">${meta.label}</div>
+      <div class="ic-count">noticed ${ing.count}× · ${wks} week${wks !== 1 ? 's' : ''}</div>
+      <div class="dur-pill ${dur.cls}">${dur.emoji} ${dur.label}</div>
+      <div class="ic-stripe"></div>
+    </div>`;
+  }).join('');
+
+  if (p.lastDeciphered) {
+    const d = new Date(p.lastDeciphered);
+    lastDec.textContent = 'Portrait last updated ' + d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  }
+}
+
+function toggleIngDetail(tag) {
+  const existing = document.getElementById('ing-detail-box');
+  if (existing) { existing.remove(); }
+  if (openIng === tag) { openIng = null; document.querySelectorAll('.ing-card').forEach(c => c.classList.remove('selected')); return; }
+  openIng = tag;
+
+  document.querySelectorAll('.ing-card').forEach(c => c.classList.remove('selected'));
+  const cardEl = document.getElementById('icard-' + tag.replace(/\//g,'_'));
+  if (cardEl) cardEl.classList.add('selected');
+
+  const u   = cur();
+  const ing = u.portrait.ingredients[tag];
+  const meta = INGREDIENT_META[tag] || { emoji: '✦', label: tag };
+  const dur  = DUR[ing.durabilityLabel] || DUR.exploring;
+
+  const box = document.createElement('div');
+  box.id = 'ing-detail-box';
+  box.className = 'ing-detail';
+  box.style.cssText = 'display:block';
+
+  const resp = ing.kidConfirmed || null;
+
+  box.innerHTML = `
+    <div class="ing-detail-header">
+      <span class="ing-detail-emoji">${meta.emoji}</span>
+      <div>
+        <div style="font-weight:700;font-size:18px;margin-bottom:4px">${meta.label}</div>
+        <div class="dur-pill ${dur.cls}">${dur.emoji} ${dur.label}</div>
+      </div>
+    </div>
+    ${ing.aiSentence ? `<div class="id-sentence">${esc(ing.aiSentence)}</div>` : ''}
+    <p class="small muted" style="margin:0 0 10px;font-weight:600">Does this feel like you?</p>
+    <div class="confirm-row">
+      <button class="conf-btn cb-yes ${resp==='yes'?'selected':''}" onclick="confirmIng('${tag}','yes')">Yes ✓</button>
+      <button class="conf-btn cb-sort ${resp==='sort'?'selected':''}" onclick="confirmIng('${tag}','sort')">Sort of</button>
+      <button class="conf-btn cb-no ${resp==='no'?'selected':''}" onclick="confirmIng('${tag}','no')">Not really</button>
+    </div>
+    ${(resp==='no'||resp==='sort') ? `
+      <div class="kid-edit-wrap">
+        <textarea placeholder="What feels more accurate? (optional)" onblur="saveIngEdit('${tag}',this.value)">${esc(ing.kidEdit||'')}</textarea>
+      </div>` : ''}`;
+
+  // Insert after the full grid
+  const grid = document.getElementById('portraitGrid');
+  grid.insertAdjacentElement('afterend', box);
+}
+
+function confirmIng(tag, resp) {
+  const u = cur();
+  const ing = u.portrait.ingredients[tag];
+  if (!ing) return;
+  ing.kidConfirmed = resp;
+  save();
+  const box = document.getElementById('ing-detail-box');
+  if (!box) return;
+  box.querySelectorAll('.conf-btn').forEach(b => b.classList.remove('selected'));
+  const map = { yes: '.cb-yes', sort: '.cb-sort', no: '.cb-no' };
+  box.querySelector(map[resp])?.classList.add('selected');
+  const hasEdit = resp === 'no' || resp === 'sort';
+  const existing = box.querySelector('.kid-edit-wrap');
+  if (hasEdit && !existing) {
+    const wrap = document.createElement('div');
+    wrap.className = 'kid-edit-wrap';
+    wrap.innerHTML = `<textarea placeholder="What feels more accurate? (optional)" onblur="saveIngEdit('${tag}',this.value)">${esc(ing.kidEdit||'')}</textarea>`;
+    box.querySelector('.confirm-row').insertAdjacentElement('afterend', wrap);
+  } else if (!hasEdit && existing) {
+    existing.remove();
+  }
+}
+
+function saveIngEdit(tag, val) {
+  const u = cur();
+  if (u.portrait.ingredients[tag]) { u.portrait.ingredients[tag].kidEdit = val.trim(); save(); }
+}
+
+// ─────────────────────────────────────────
+//  KID — WEEKLY MIRROR
+// ─────────────────────────────────────────
+function renderMirror() {
+  const u   = cur();
+  const p   = u.portrait;
+  const wk  = getWeekKey(todayKey());
+  const mir = p.weeklyMirrors.find(m => m.week === wk);
+  const weekEntries = u.entries.filter(e => getWeekKey(e.date) === wk);
+  const c   = document.getElementById('mirrorContent');
+
+  if (mir && mir.completed) {
+    renderMirrorComplete(mir);
+  } else if (mir && mir.status === 'ready' && !mir.opened) {
+    c.innerHTML = `
+      <div class="mirror-ready-card" onclick="openMirror('${wk}')">
+        <span class="mirror-icon">🪞</span>
+        <h2>Your mirror is ready</h2>
+        <p>Tap to see what this week's drops are showing</p>
+        <button class="open-mirror-btn">Open your mirror →</button>
+      </div>`;
+  } else if (mir && mir.opened && !mir.completed) {
+    renderMirrorObservations(mir, wk);
+  } else if (weekEntries.length >= 3 && !mir) {
+    // Enough entries — generate
+    c.innerHTML = `
+      <div class="mirror-wait">
+        <span class="big-emoji">🌀</span>
+        <h2>Reading this week…</h2>
+        <p>Give it a moment while the mirror takes shape.</p>
+        <div style="margin-top:8px"><div class="thinking" style="justify-content:center"><span></span><span></span><span></span></div></div>
+      </div>`;
+    triggerMirrorGeneration(wk, weekEntries);
+  } else {
+    // Not enough entries yet
+    const done = weekEntries.length;
+    const need = Math.max(0, 3 - done);
+    const dots = [0,1,2].map(i => `<div class="edot ${i < done ? 'done' : ''}"></div>`).join('');
+    const preview = weekEntries.length > 0
+      ? `<div style="text-align:left;margin-top:20px">${weekEntries.slice(-2).map(e =>
+          `<div class="entry" style="margin-bottom:8px">
+            <div class="small muted">${niceDate(e.date)}</div>
+            <div class="ea" style="font-size:14px">${esc(e.text.slice(0,100))}${e.text.length>100?'…':''}</div>
+          </div>`).join('')}</div>` : '';
+    c.innerHTML = `
+      <div class="mirror-wait">
+        <span class="big-emoji">🪞</span>
+        <h2>Mirror is brewing</h2>
+        <p>Drop ${need} more time${need !== 1 ? 's' : ''} this week and your mirror will be ready to open.</p>
+        <div class="entry-dots">${dots}</div>
+      </div>
+      ${preview}`;
+  }
+}
+
+async function triggerMirrorGeneration(wk, weekEntries) {
+  const key = localStorage.getItem('mirror_apikey');
+  const c   = document.getElementById('mirrorContent');
+  if (!key) {
+    c.innerHTML = `<div class="mirror-wait"><span class="big-emoji">🔑</span><h2>AI not connected yet</h2><p>Set up the API key in the Grown-up corner to activate your mirror.</p></div>`;
+    return;
+  }
+  try {
+    const u   = cur();
+    const res = await generateWeeklyMirror(weekEntries, u.portrait, u.name);
+    const mir = {
+      week: wk, generated: new Date().toISOString(), status: 'ready',
+      opened: false, completed: false,
+      observations: res.observations.map(o => ({ ...o, response: null, kidEdit: '' })),
+      weekSummary: res.weekSummary || ''
+    };
+    u.portrait.weeklyMirrors.push(mir);
+    save();
+    renderMirror();
+    renderTabs(document.querySelector('.screen.active')?.id || 's-mirror');
+  } catch(err) {
+    console.error('Mirror generation error:', err);
+    c.innerHTML = `<div class="mirror-wait"><span class="big-emoji">😔</span><h2>Couldn't load mirror</h2><p>Something went wrong — try again in a moment.</p></div>`;
+  }
+}
+
+function openMirror(wk) {
+  const u   = cur();
+  const mir = u.portrait.weeklyMirrors.find(m => m.week === wk);
+  if (!mir) return;
+  mir.opened = true;
+  save();
+  renderMirrorObservations(mir, wk);
+}
+
+function renderMirrorObservations(mir, wk) {
+  const c       = document.getElementById('mirrorContent');
+  const allDone = mir.observations.every(o => o.response !== null);
+  let html = `
+    <div class="mirror-intro">
+      <strong>Your mirror for this week</strong> — tap yes, sort of, or not really for each.<br>
+      <span style="color:var(--muted)">You own the final picture. These are questions, not verdicts.</span>
+    </div>`;
+
+  mir.observations.forEach((obs, i) => {
+    const ingData = cur().portrait.ingredients[obs.ingredient];
+    const dur     = ingData ? (DUR[ingData.durabilityLabel] || DUR.exploring) : DUR.exploring;
+    const stripeStyle = `background:${dur.color}`;
+    const resp = obs.response;
+    html += `
+      <div class="obs-card">
+        <div class="obs-stripe" style="${stripeStyle}"></div>
+        <div class="obs-body">
+          <div class="obs-num">Observation ${i+1} of ${mir.observations.length}</div>
+          <div class="obs-text">${esc(obs.text)}</div>
+          <div class="resp-row">
+            <button class="resp-btn rb-yes ${resp==='yes'?'selected':''}" onclick="respondObs('${wk}',${i},'yes')">Yes ✓</button>
+            <button class="resp-btn rb-sort ${resp==='sort'?'selected':''}" onclick="respondObs('${wk}',${i},'sort')">Sort of</button>
+            <button class="resp-btn rb-no ${resp==='no'?'selected':''}" onclick="respondObs('${wk}',${i},'no')">Not really</button>
+          </div>
+        </div>
+        ${(resp==='no'||resp==='sort') ? `<div class="obs-edit-wrap"><textarea placeholder="What's more accurate for you? (optional)" onblur="saveObsEdit('${wk}',${i},this.value)">${esc(obs.kidEdit||'')}</textarea></div>` : ''}
+      </div>`;
+  });
+
+  if (allDone) {
+    html += `<button class="btn btn-primary" onclick="completeMirror('${wk}')">Save my mirror →</button>`;
+  } else {
+    html += `<p class="small muted center" style="margin-top:4px">Respond to all ${mir.observations.length} to save</p>`;
+  }
+  c.innerHTML = html;
+}
+
+function respondObs(wk, idx, resp) {
+  const u   = cur();
+  const mir = u.portrait.weeklyMirrors.find(m => m.week === wk);
+  if (!mir) return;
+  mir.observations[idx].response = resp;
+  save();
+  renderMirrorObservations(mir, wk);
+}
+function saveObsEdit(wk, idx, val) {
+  const u   = cur();
+  const mir = u.portrait.weeklyMirrors.find(m => m.week === wk);
+  if (mir) { mir.observations[idx].kidEdit = val.trim(); save(); }
+}
+
+function completeMirror(wk) {
+  const u   = cur();
+  const mir = u.portrait.weeklyMirrors.find(m => m.week === wk);
+  if (!mir) return;
+  mir.completed = true;
+
+  // Reconcile portrait based on kid responses
+  mir.observations.forEach(obs => {
+    const ing = u.portrait.ingredients[obs.ingredient];
+    if (!ing) return;
+    ing.kidConfirmed = obs.response;
+    if (obs.kidEdit) ing.kidEdit = obs.kidEdit;
+    // A "yes" boosts signals slightly (kid is actively recognising this)
+    if (obs.response === 'yes') {
+      ing.signals.selfInit = (ing.signals.selfInit || 0) + 1;
+      ing.durabilityLabel = calcDurability(ing);
+    }
+  });
+  save();
+  renderMirrorComplete(mir);
+  renderTabs(document.querySelector('.screen.active')?.id || 's-mirror');
+}
+
+function renderMirrorComplete(mir) {
+  const confirmed = mir.observations.filter(o => o.response === 'yes').length;
+  const c = document.getElementById('mirrorContent');
+  c.innerHTML = `
+    <div class="mirror-done-card">
+      <span class="done-emoji">🌟</span>
+      <h2>Mirror saved</h2>
+      <p>${confirmed > 0 ? `You confirmed ${confirmed} pull${confirmed !== 1 ? 's' : ''} this week.` : 'Your portrait was shaped by what you said.'} It gets clearer every week.</p>
+    </div>
+    ${mir.weekSummary ? `<div class="card"><p class="small muted" style="margin:0 0 6px;font-weight:600">This week in a line</p><p style="margin:0;font-size:15px;line-height:1.6">${esc(mir.weekSummary)}</p></div>` : ''}
+    <button class="btn btn-ghost" onclick="renderPortrait();show('s-portrait')">See your portrait →</button>`;
+}
+
+// ─────────────────────────────────────────
+//  PARENT
+// ─────────────────────────────────────────
+function renderParent() {
+  const u = cur();
+  document.getElementById('parentKidName').textContent = '· ' + u.name;
+  document.getElementById('pPromptQ').textContent      = PARENT_PROMPTS[dayNum() % PARENT_PROMPTS.length];
+  const sorted = [...u.entries].sort((a,b) => b.ts - a.ts);
+  document.getElementById('parentEntries').innerHTML = sorted.map(e =>
+    `<div class="entry"><div class="when">${niceDate(e.date)}</div><div class="eq">${esc(e.q)}</div><div class="ea">${esc(e.text)}</div></div>`
+  ).join('');
+}
+function saveParent() {
+  const t = document.getElementById('pAnswer').value.trim();
+  if (!t) { document.getElementById('pAnswer').focus(); return; }
+  const u = cur();
+  u.entries.push({ date: todayKey(), ts: Date.now(), q: document.getElementById('pPromptQ').textContent, kind: 'parent', text: t });
+  save();
+  document.getElementById('pAnswer').value = '';
+  renderParent();
+}
+
+// ─────────────────────────────────────────
+//  AI ENGINE
+// ─────────────────────────────────────────
+async function callClaude(systemPrompt, userMsg, model) {
+  const payload = {
+    model: model || 'claude-haiku-4-5-20251001',
+    max_tokens: 700,
+    system: systemPrompt,
+    messages: [{ role: 'user', content: userMsg }]
+  };
+
+  let headers = { 'content-type': 'application/json' };
+  let url = CLAUDE_ENDPOINT;
+
+  if (!IS_HOSTED) {
+    // Local file mode: call Anthropic directly using localStorage key
+    const key = localStorage.getItem('mirror_apikey');
+    if (!key) return null;
+    headers['x-api-key'] = key;
+    headers['anthropic-version'] = '2023-06-01';
+    headers['anthropic-dangerous-direct-browser-access'] = 'true';
+  }
+
+  const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(payload) });
+  if (!res.ok) throw new Error('API ' + res.status);
+  const data = await res.json();
+  const raw  = data.content[0].text.trim();
+  const cleaned = raw.replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,'').trim();
+  return JSON.parse(cleaned);
+}
+
+const DECIPHER_SYSTEM = `You are a careful, warm observer of a 13-16 year old's interests and daily life.
+DO NOT judge, assess, score, or make any recommendations. Never name a career, academic stream, subject area, or personality type.
+
+Your job: extract interest ingredients, the motivation underneath, and durability signals from one journal entry.
+
+INTEREST TAGS — use ONLY these exact strings (extend only if truly nothing fits):
+building/making, understanding-why/systems, helping-others-understand, caring-for-people,
+organizing/structuring, performing/expressing, competing/winning, aesthetics/craft,
+storytelling/narrative, exploring/novelty, persuading/leading, analyzing/numbers,
+nature/living-things, hands-on/physical
+
+Return ONLY valid JSON (no markdown, no explanation):
+{
+  "ingredients": ["tag1","tag2"],
+  "motivation": "one word: mastery|recognition|helping|curiosity|belonging|expression|achievement|connection",
+  "signals": {
+    "selfInitiated": true,
+    "depthSeeking": false,
+    "energyPositive": true
+  },
+  "sentence": "One warm sentence (15-25 words) the kid would recognize. Start with 'You' or 'It sounds like you'. No labels, no jargon."
+}`;
+
+const MIRROR_SYSTEM = `You are The Mirror — a warm, curious weekly reflection for a 13-16 year old.
+Based on their entries and portrait, generate 2-3 gentle observations as QUESTIONS the kid can respond to.
+
+Rules:
+- Frame each as a soft question ending in "— does that feel true?" or similar
+- Reference things they actually wrote (paraphrase briefly — make it feel personal, not generic)
+- Keep each observation to 1-2 sentences
+- NEVER name a career, academic stream, subject, personality type, or field of study
+- NEVER use these words: assessment, test, score, evaluation, result, grade, strength, weakness, personality, intelligent, talented
+- Sound like a curious warm friend, not a teacher or counselor
+- Each observation must connect to one ingredient tag
+- Return ONLY valid JSON (no markdown):
+
+{
+  "observations": [
+    {"text": "Your observation as a question.", "ingredient": "exact-tag-from-list"}
+  ],
+  "weekSummary": "One warm sentence capturing this week's energy — not a verdict, not advice."
+}`;
+
+async function runDecipher(userId, dateKey) {
+  const u     = state.users[userId];
+  const entry = u.entries.find(e => e.date === dateKey);
+  if (!entry || entry.deciphered) return;
+
+  showToast('Reading your drop… 🧠');
+  try {
+    const result = await callClaude(DECIPHER_SYSTEM, `Name: ${u.name}\nPrompt: ${entry.q}\nEntry: ${entry.text}`);
+    if (!result || !result.ingredients) throw new Error('Bad response');
+    entry.decipher   = result;
+    entry.deciphered = true;
+    updatePortrait(userId, dateKey, result);
+
+    // Check for brand-new ingredients
+    const newOnes = result.ingredients.filter(tag => {
+      const ing = u.portrait.ingredients[tag];
+      return ing && ing.count === 1;
+    });
+    if (newOnes.length > 0) {
+      const label = INGREDIENT_META[newOnes[0]]?.label || newOnes[0];
+      showToast('New pull spotted: ' + label + ' ✨');
+    } else {
+      showToast('Portrait updated 🌱');
+    }
+    // Refresh live screens
+    const active = document.querySelector('.screen.active')?.id;
+    if (active === 's-portrait') renderPortrait();
+    if (active === 's-kidlog')   renderKidLog();
+    checkMirrorBadge(userId);
+    save();
+  } catch(err) {
+    console.warn('Decipher failed:', err);
+    showToast('Saved ✓');
+  }
+}
+
+async function generateWeeklyMirror(entries, portrait, name) {
+  const ings = Object.entries(portrait.ingredients)
+    .map(([tag, v]) => `${tag} (seen ${v.count}x, ${v.durabilityLabel})`).join(', ');
+  const entriesText = entries.map(e => `[${e.date}] Q: ${e.q}\nA: ${e.text}`).join('\n\n');
+  const msg = `Kid's name: ${name}\n\nThis week's entries:\n${entriesText}\n\nPortrait so far: ${ings || 'none yet'}`;
+  return callClaude(MIRROR_SYSTEM, msg, 'claude-sonnet-4-6');
+}
+
+// ─────────────────────────────────────────
+//  PORTRAIT ENGINE (durability)
+// ─────────────────────────────────────────
+function updatePortrait(userId, dateKey, decipher) {
+  const u = state.users[userId];
+  const p = u.portrait;
+
+  for (const tag of (decipher.ingredients || [])) {
+    if (!p.ingredients[tag]) {
+      p.ingredients[tag] = {
+        label: INGREDIENT_META[tag]?.label || tag,
+        count: 0, weeks: [], firstSeen: dateKey, lastSeen: dateKey,
+        signals: { selfInit: 0, depth: 0, energy: 0 },
+        durabilityLabel: 'exploring', aiSentence: '', kidConfirmed: null, kidEdit: ''
+      };
+    }
+    const ing = p.ingredients[tag];
+    ing.count++;
+    ing.lastSeen = dateKey;
+    const wk = getWeekKey(dateKey);
+    if (!ing.weeks.includes(wk)) ing.weeks.push(wk);
+    if (decipher.signals?.selfInitiated) ing.signals.selfInit++;
+    if (decipher.signals?.depthSeeking)  ing.signals.depth++;
+    if (decipher.signals?.energyPositive) ing.signals.energy++;
+    ing.aiSentence    = decipher.sentence || ing.aiSentence;
+    ing.durabilityLabel = calcDurability(ing);
+  }
+  p.lastDeciphered = new Date().toISOString();
+}
+
+function calcDurability(ing) {
+  const { count, weeks, signals } = ing;
+  if (count < 2) return 'exploring';
+  if ((weeks && weeks.length >= 2)) return 'staying';
+  if (signals.selfInit >= 2 && signals.depth >= 1) return 'staying';
+  if (count >= 4 && signals.energy >= 3) return 'staying';
+  // Tied to a single burst with no self-initiation or depth
+  if (count >= 3 && signals.selfInit === 0 && signals.depth === 0) return 'finding';
+  return 'exploring';
+}
+
+function checkMirrorBadge(userId) {
+  const u  = state.users[userId];
+  const wk = getWeekKey(todayKey());
+  const wkEntries = u.entries.filter(e => getWeekKey(e.date) === wk);
+  const hasMirror = u.portrait.weeklyMirrors.some(m => m.week === wk);
+  if (wkEntries.length >= 3 && !hasMirror) {
+    renderTabs(document.querySelector('.screen.active')?.id || 's-kid');
+  }
+}
+
+// ─────────────────────────────────────────
+//  GROWN-UP CORNER
+// ─────────────────────────────────────────
+function saveApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val) return;
+  localStorage.setItem('mirror_apikey', val);
+  document.getElementById('apiKeyInput').value = '';
+  const statusEl = document.getElementById('apiStatus');
+  const textEl   = document.getElementById('apiStatusText');
+  statusEl.classList.remove('hidden');
+  textEl.textContent = 'Key saved — AI engine active';
+  // Rebuild mirror trigger select in case
+  buildMirrorTriggerSelect();
+}
+
+function buildMirrorTriggerSelect() {
+  const sel = document.getElementById('mirrorTriggerSelect');
+  const kids = Object.values(state.users).filter(u => u.role === 'kid');
+  if (kids.length === 0) { sel.innerHTML = '<p class="small muted" style="margin:0">No kid profiles yet.</p>'; return; }
+  sel.innerHTML = `<select id="mirrorKidSelect" style="width:100%;padding:12px;border:1.5px solid var(--mint-2);border-radius:13px;font:inherit;background:#fff;margin-bottom:0">
+    ${kids.map(k => `<option value="${uid('kid',k.name)}">${k.name}</option>`).join('')}
+  </select>`;
+}
+
+async function forceMirror() {
+  const selEl  = document.getElementById('mirrorKidSelect');
+  const status = document.getElementById('mirrorTriggerStatus');
+  if (!selEl) { status.textContent = 'No kid profiles found.'; return; }
+  const userId = selEl.value;
+  const u      = state.users[userId];
+  if (!u) { status.textContent = 'Profile not found.'; return; }
+  const wk         = getWeekKey(todayKey());
+  const weekEntries = u.entries.filter(e => getWeekKey(e.date) === wk);
+  if (weekEntries.length === 0) { status.textContent = u.name + ' has no entries this week yet.'; return; }
+
+  status.textContent = 'Generating…';
+  try {
+    const res = await generateWeeklyMirror(weekEntries, u.portrait, u.name);
+    // Remove existing mirror for this week if any
+    u.portrait.weeklyMirrors = u.portrait.weeklyMirrors.filter(m => m.week !== wk);
+    u.portrait.weeklyMirrors.push({
+      week: wk, generated: new Date().toISOString(), status: 'ready',
+      opened: false, completed: false,
+      observations: res.observations.map(o => ({ ...o, response: null, kidEdit: '' })),
+      weekSummary: res.weekSummary || ''
+    });
+    save();
+    status.textContent = '✓ Mirror ready for ' + u.name + '. They\'ll see it in the Mirror tab.';
+  } catch(err) {
+    status.textContent = 'Error: ' + err.message;
+  }
+}
+
+async function reprocessAll() {
+  const btn    = document.getElementById('reprocessBtn');
+  const status = document.getElementById('reprocessStatus');
+  if (!IS_HOSTED && !localStorage.getItem('mirror_apikey')) {
+    status.textContent = 'Set up the API key first (you\'re running in local file mode).';
+    return;
+  }
+
+  btn.disabled = true;
+  let total = 0, done = 0;
+
+  for (const u of Object.values(state.users)) {
+    if (u.role !== 'kid') continue;
+    total += u.entries.filter(e => !e.deciphered).length;
+  }
+  if (total === 0) { status.textContent = 'All entries already processed.'; btn.disabled = false; return; }
+
+  for (const [id, u] of Object.entries(state.users)) {
+    if (u.role !== 'kid') continue;
+    for (const entry of u.entries) {
+      if (entry.deciphered) continue;
+      status.textContent = `Processing ${done + 1} of ${total}…`;
+      try {
+        const result = await callClaude(DECIPHER_SYSTEM, `Name: ${u.name}\nPrompt: ${entry.q}\nEntry: ${entry.text}`);
+        if (result && result.ingredients) {
+          entry.decipher   = result;
+          entry.deciphered = true;
+          updatePortrait(id, entry.date, result);
+        }
+        done++;
+        await new Promise(r => setTimeout(r, 350)); // gentle rate-limit
+      } catch(e) {
+        done++;
+        // Continue on error
+      }
+    }
+  }
+  save();
+  status.textContent = `Done — ${done} entries processed.`;
+  btn.disabled = false;
+}
+
+function buildExport() {
+  let out = 'THE MIRROR — DATA EXPORT (' + todayKey() + ')\n\n';
+  Object.values(state.users).forEach(u => {
+    out += '==== ' + u.role.toUpperCase() + ': ' + u.name + ' (since ' + u.created + ') ====\n';
+    [...u.entries].sort((a,b) => a.ts - b.ts).forEach(e => {
+      out += '[' + e.date + '](' + e.kind + ') Q: ' + e.q + '\n   A: ' + e.text + '\n';
+      if (e.decipher) out += '   AI: ' + (e.decipher.ingredients||[]).join(', ') + ' | ' + e.decipher.sentence + '\n';
+    });
+    if (u.role === 'kid' && u.portrait) {
+      out += '\nPORTRAIT:\n';
+      Object.entries(u.portrait.ingredients).forEach(([tag, ing]) => {
+        out += '  ' + tag + ': count=' + ing.count + ', durability=' + ing.durabilityLabel + ', kid=' + (ing.kidConfirmed||'?') + '\n';
+        if (ing.aiSentence) out += '    "' + ing.aiSentence + '"\n';
+      });
+    }
+    out += '\n';
+  });
+  const box = document.getElementById('exportBox');
+  box.textContent = out;
+  box.classList.remove('hidden');
+}
+
+function copyExport() {
+  buildExport();
+  const t = document.getElementById('exportBox').textContent;
+  navigator.clipboard?.writeText(t).then(() => showToast('Copied to clipboard'), () => { const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();showToast('Copied'); });
+}
+
+function wipe() {
+  if (confirm('Erase ALL saved drops on this device? This cannot be undone.')) {
+    state = { users: {}, current: null };
+    localStorage.removeItem('mirror_v2');
+    localStorage.removeItem('mirror_v1');
+    show('s-onboard');
+  }
+}
+
+// ─────────────────────────────────────────
+//  VOICE
+// ─────────────────────────────────────────
+let rec = null, recing = false;
+function toggleMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { document.getElementById('micLabel').textContent = 'Voice not supported here — just type'; return; }
+  if (recing) { rec.stop(); return; }
+  rec = new SR();
+  rec.lang = 'en-IN';
+  rec.interimResults = true;
+  rec.continuous = true;
+  let base = document.getElementById('answer').value;
+  rec.onstart  = () => { recing = true;  document.getElementById('micBtn').classList.add('rec'); document.getElementById('micLabel').textContent = 'Listening… tap to stop'; };
+  rec.onend    = () => { recing = false; document.getElementById('micBtn').classList.remove('rec'); document.getElementById('micLabel').textContent = 'Or say it out loud'; };
+  rec.onresult = ev => { let txt=''; for(let i=0;i<ev.results.length;i++) txt+=ev.results[i][0].transcript; document.getElementById('answer').value=(base?base+' ':'')+txt; };
+  rec.start();
+}
+
+// ─────────────────────────────────────────
+//  TOAST
+// ─────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('globalToast');
+  t.textContent = msg;
+  t.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─────────────────────────────────────────
+//  UTILITIES
+// ─────────────────────────────────────────
+function esc(s) {
+  return (s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+function niceDate(d) {
+  const [y,m,da] = d.split('-');
+  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1];
+  return mo + ' ' + (+da);
+}
+
+// ─────────────────────────────────────────
+//  GROWN-UP CORNER INIT
+// ─────────────────────────────────────────
+function initGrownUp() {
+  // When hosted on Vercel, API key is server-side — hide the key entry card
+  const apiCard = document.getElementById('apiKeyCard');
+  if (IS_HOSTED && apiCard) {
+    apiCard.innerHTML = `<h2 style="font-size:16px;margin-bottom:4px">🧠 AI brain</h2>
+      <div class="status-row"><span class="sdot sdot-green"></span><span>Connected — managed by server</span></div>
+      <p class="note" style="margin-top:8px">The AI key lives server-side. No setup needed here.</p>`;
+  } else {
+    const key = localStorage.getItem('mirror_apikey');
+    if (key) {
+      document.getElementById('apiKeyInput').placeholder = '••••••••••••••••••••••••';
+      const statusEl = document.getElementById('apiStatus');
+      statusEl.classList.remove('hidden');
+      document.getElementById('apiStatusText').textContent = 'Key active — AI engine ready';
+      statusEl.querySelector('.sdot').className = 'sdot sdot-green';
+    }
+  }
+  renderSyncStatus();
+  buildMirrorTriggerSelect();
+}
+
+// ─────────────────────────────────────────
+//  SYNC FUNCTIONS
+// ─────────────────────────────────────────
+
+function chooseMode(mode) {
+  localStorage.setItem(SYNC_MODE_KEY, mode);
+  if (mode === 'local') {
+    if (state.current && cur()) enter();
+    else show('s-onboard');
+  }
+}
+
+async function createHousehold() {
+  const btn    = document.getElementById('createHhBtn');
+  const status = document.getElementById('syncStatus');
+  btn.disabled = true;
+  status.textContent = 'Creating…';
+  try {
+    const res  = await fetch('/api/household', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'create' })
+    });
+    const data = await res.json();
+    if (!data.code) throw new Error('No code returned');
+    localStorage.setItem(SYNC_MODE_KEY,   'sync');
+    localStorage.setItem(FAMILY_CODE_KEY, data.code);
+    document.getElementById('codeDisplay').textContent = data.code;
+    show('s-sync-created');
+    // If there's existing local data, push it to the new household immediately
+    if (Object.keys(state.users).length > 0) syncPush();
+  } catch(err) {
+    status.textContent = 'Something went wrong — check your connection and try again.';
+    btn.disabled = false;
+  }
+}
+
+async function joinHousehold() {
+  const raw    = document.getElementById('joinCodeInput').value.trim().toUpperCase();
+  const code   = raw.replace(/[^A-Z0-9-]/g, '');
+  const status = document.getElementById('syncStatus');
+  if (!code) { status.textContent = 'Please enter a family code.'; return; }
+
+  status.textContent = 'Checking code…';
+  try {
+    const res  = await fetch('/api/household', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'verify', code })
+    });
+    const data = await res.json();
+    if (!data.exists) { status.textContent = 'Code not found — double-check and try again.'; return; }
+    localStorage.setItem(SYNC_MODE_KEY,   'sync');
+    localStorage.setItem(FAMILY_CODE_KEY, code);
+    status.textContent = '✓ Joined! Pulling data…';
+    await pullAndEnter();
+  } catch(err) {
+    status.textContent = 'Something went wrong — check your connection and try again.';
+  }
+}
+
+function copyCode() {
+  const code = getFamilyCode();
+  if (!code) return;
+  navigator.clipboard?.writeText(code).then(() => showToast('Code copied! 📋'), () => showToast(code));
+}
+
+function proceedToOnboard() {
+  if (state.current && cur()) enter();
+  else show('s-onboard');
+}
+
+async function pullAndEnter() {
+  const code = getFamilyCode();
+  if (!code) { show('s-onboard'); return; }
+  showToast('Syncing… 🔄');
+  try {
+    const res  = await fetch(`/api/sync?code=${encodeURIComponent(code)}`);
+    if (!res.ok) throw new Error('Fetch failed ' + res.status);
+    const data = await res.json();
+    if (data.users && Object.keys(data.users).length > 0) {
+      // Cloud is source of truth: merge, preferring cloud per slot
+      for (const [id, userData] of Object.entries(data.users)) {
+        state.users[id] = userData;
+      }
+      localStorage.setItem('mirror_v2', JSON.stringify(state));
+    }
+  } catch(e) {
+    // Network error — use cached local data silently
+    console.warn('Sync pull failed, using cache:', e.message);
+  }
+  if (state.current && cur()) enter();
+  else show('s-onboard');
+}
+
+async function syncPush() {
+  const code = getFamilyCode();
+  if (!code || Object.keys(state.users).length === 0) return;
+  try {
+    await fetch('/api/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, users: state.users })
+    });
+  } catch(e) {
+    console.warn('Sync push failed (offline?):', e.message);
+  }
+}
+
+function renderSyncStatus() {
+  const body = document.getElementById('syncStatusBody');
+  if (!body) return;
+  const mode = getSyncMode();
+  const code = getFamilyCode();
+  if (mode === 'sync' && code) {
+    body.innerHTML = `
+      <div class="sync-badge">🔗 Syncing across devices</div>
+      <p class="small muted" style="margin:0 0 10px">Family code: <b style="letter-spacing:1.5px;color:var(--ink)">${code}</b></p>
+      <button class="btn btn-soft" style="margin-bottom:8px" onclick="copyCode()">Copy family code</button>
+      <button class="btn btn-soft" style="color:var(--muted)" onclick="switchToLocal()">Switch to single-device mode</button>`;
+  } else if (mode === 'local') {
+    body.innerHTML = `
+      <p class="small muted" style="margin:0 0 10px">Currently: <b>single device</b></p>
+      <button class="btn btn-ghost" onclick="show('s-sync-setup')">Switch to separate devices</button>`;
+  } else {
+    body.innerHTML = `<p class="small muted" style="margin:0">Not set up yet — choose a mode from the home screen.</p>`;
+  }
+}
+
+function switchToLocal() {
+  if (!confirm('Switch to single-device mode? Sync will stop but your data stays on this device.')) return;
+  localStorage.removeItem(SYNC_MODE_KEY);
+  localStorage.removeItem(FAMILY_CODE_KEY);
+  show('s-setup');
+}
+
+// ─────────────────────────────────────────
+//  BOOT
+// ─────────────────────────────────────────
+(function() {
+  initGrownUp();
+  const mode = getSyncMode();
+
+  if (!mode) {
+    // First time — show mode choice
+    show('s-setup');
+    return;
+  }
+
+  if (mode === 'sync' && IS_HOSTED) {
+    // Sync mode on hosted version: pull from cloud then enter
+    pullAndEnter();
+  } else {
+    // Local mode, or sync mode on local file (treat as local)
+    if (state.current && cur()) enter();
+    else show('s-onboard');
+  }
+})();
+</script>
+</body>
+</html>

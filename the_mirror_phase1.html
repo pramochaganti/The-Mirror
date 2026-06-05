@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>The Mirror</title>
+<style>
+  :root{
+    --green:#1f6f5c; --green-d:#185647; --mint:#e9f5f1; --mint-2:#d8ebe4;
+    --ink:#27332f; --muted:#7b8a85; --bg:#f4faf8; --card:#ffffff; --warm:#fff7ec; --warm-b:#f0dcb8;
+    --shadow:0 6px 22px rgba(31,111,92,.10);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5;
+    min-height:100vh;
+  }
+  .wrap{max-width:520px;margin:0 auto;padding:18px 18px 90px;min-height:100vh}
+  .screen{display:none;animation:fade .35s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  h1{font-size:26px;margin:0 0 4px;letter-spacing:-.4px}
+  h2{font-size:20px;margin:0 0 6px;letter-spacing:-.2px}
+  .muted{color:var(--muted)}
+  .small{font-size:13px}
+  .center{text-align:center}
+
+  .brand{display:flex;align-items:center;gap:10px;justify-content:center;margin:30px 0 6px}
+  .logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--green),#2e9b80);
+    display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+  .logo svg{width:24px;height:24px}
+  .tagline{color:var(--muted);text-align:center;margin:0 0 26px;font-size:14.5px}
+
+  .card{background:var(--card);border-radius:18px;padding:20px;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid #eef3f1}
+  .card.warm{background:var(--warm);border-color:var(--warm-b)}
+
+  .btn{appearance:none;border:none;font:inherit;cursor:pointer;border-radius:14px;
+    padding:15px 18px;font-weight:600;font-size:16px;width:100%;transition:transform .08s ease, box-shadow .2s}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:var(--green);color:#fff;box-shadow:var(--shadow)}
+  .btn-ghost{background:var(--mint);color:var(--green-d)}
+  .btn-soft{background:#fff;color:var(--green-d);border:1.5px solid var(--mint-2)}
+  .btn-row{display:flex;gap:10px}
+  .btn-row .btn{width:auto;flex:1}
+
+  .choice{display:flex;gap:12px;margin-top:8px}
+  .choice .opt{flex:1;background:#fff;border:1.5px solid var(--mint-2);border-radius:16px;padding:22px 12px;text-align:center;cursor:pointer;transition:.15s}
+  .choice .opt:active{transform:scale(.98)}
+  .choice .opt .emoji{font-size:30px;display:block;margin-bottom:8px}
+  .choice .opt b{display:block;font-size:16px}
+  .choice .opt span{font-size:12.5px;color:var(--muted)}
+
+  input[type=text]{width:100%;padding:14px;border:1.5px solid var(--mint-2);border-radius:13px;font:inherit;background:#fff;margin-top:8px}
+  textarea{width:100%;min-height:120px;padding:15px;border:1.5px solid var(--mint-2);border-radius:15px;font:inherit;background:#fff;resize:vertical;line-height:1.5}
+  textarea:focus,input:focus{outline:none;border-color:var(--green)}
+
+  .prompt-label{display:inline-block;background:var(--mint);color:var(--green-d);font-size:11.5px;
+    font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:5px 11px;border-radius:20px;margin-bottom:12px}
+  .prompt-q{font-size:21px;font-weight:600;line-height:1.35;margin:0 0 4px;letter-spacing:-.2px}
+
+  .mic{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;
+    background:#fff;border:1.5px solid var(--mint-2);border-radius:13px;padding:12px;color:var(--green-d);font-weight:600;cursor:pointer}
+  .mic.rec{background:#ffeceb;border-color:#f3b6b1;color:#c0392b}
+  .mic svg{width:18px;height:18px}
+
+  .streak{display:flex;align-items:center;gap:10px;background:var(--warm);border:1px solid var(--warm-b);
+    border-radius:14px;padding:12px 15px;margin-bottom:16px}
+  .streak .flame{font-size:22px}
+  .streak b{font-size:17px}
+
+  .entry{background:#fff;border:1px solid #eef3f1;border-radius:14px;padding:14px 16px;margin-bottom:10px}
+  .entry .when{font-size:12px;color:var(--muted);margin-bottom:4px}
+  .entry .eq{font-size:13px;color:var(--green-d);font-weight:600;margin-bottom:6px}
+  .entry .ea{font-size:15px}
+
+  .done-check{width:74px;height:74px;border-radius:50%;background:var(--mint);display:flex;align-items:center;justify-content:center;margin:6px auto 14px}
+  .done-check svg{width:38px;height:38px}
+
+  .tabbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e7efec;
+    display:flex;max-width:520px;margin:0 auto;box-shadow:0 -4px 20px rgba(0,0,0,.04)}
+  .tabbar button{flex:1;border:none;background:none;padding:11px 0 9px;font:inherit;color:var(--muted);cursor:pointer;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .tabbar button.on{color:var(--green)}
+  .tabbar svg{width:22px;height:22px}
+
+  .link{color:var(--green);text-decoration:none;font-weight:600;font-size:14px;cursor:pointer}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .pill-user{font-size:13px;color:var(--muted)}
+  .hidden{display:none!important}
+  .note{font-size:12.5px;color:var(--muted);margin-top:10px}
+  .divider{height:1px;background:#e7efec;margin:18px 0}
+  pre.export{white-space:pre-wrap;background:#0f201b;color:#cfe8e1;padding:14px;border-radius:12px;font-size:12px;max-height:260px;overflow:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ONBOARDING -->
+  <section id="s-onboard" class="screen active">
+    <div class="brand">
+      <div class="logo"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#fff" stroke-width="2"/><path d="M12 7c-2.5 1.5-2.5 8 0 10" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+      <h1>The Mirror</h1>
+    </div>
+    <p class="tagline">A tiny daily check-in. No tests, no scores —<br>just noticing what pulls you in.</p>
+
+    <div class="card">
+      <h2>Who's here?</h2>
+      <div class="choice">
+        <div class="opt" onclick="chooseRole('kid')"><span class="emoji">🌱</span><b>Me</b><span>I'm doing the daily drop</span></div>
+        <div class="opt" onclick="chooseRole('parent')"><span class="emoji">🪴</span><b>Parent</b><span>I'm noticing alongside</span></div>
+      </div>
+    </div>
+    <p class="center"><span class="link" onclick="show('s-grownup')">For grown-ups · setup &amp; export</span></p>
+  </section>
+
+  <!-- NAME -->
+  <section id="s-name" class="screen">
+    <div style="height:24px"></div>
+    <div class="card">
+      <h2 id="nameTitle">What should we call you?</h2>
+      <p class="muted small" id="nameSub">First name or a nickname is perfect.</p>
+      <input type="text" id="nameInput" placeholder="Type a name…" autocomplete="off">
+      <div style="height:14px"></div>
+      <button class="btn btn-primary" onclick="saveName()">That's me</button>
+      <p class="note" id="nameNote">Your answers live only on this device. Nothing is shared unless you choose to.</p>
+    </div>
+    <p class="center"><span class="link" onclick="show('s-onboard')">← back</span></p>
+  </section>
+
+  <!-- KID HOME -->
+  <section id="s-kid" class="screen">
+    <div class="topbar">
+      <div><b id="kidHi">Hi</b> <span class="pill-user" id="kidName"></span></div>
+      <span class="link" onclick="switchUser()">switch</span>
+    </div>
+
+    <div class="streak" id="kidStreak">
+      <span class="flame">🔥</span>
+      <div><b id="streakNum">0</b> <span class="muted">days of noticing</span></div>
+    </div>
+
+    <div id="kidPromptCard" class="card">
+      <span class="prompt-label" id="promptKind">Today's drop</span>
+      <p class="prompt-q" id="promptQ">…</p>
+      <p class="muted small" id="promptHint">A line or two is plenty. There's no wrong answer.</p>
+      <textarea id="answer" placeholder="Start typing…"></textarea>
+      <div class="mic" id="micBtn" onclick="toggleMic()">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" stroke-width="2"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span id="micLabel">Or say it out loud</span>
+      </div>
+      <div style="height:14px"></div>
+      <button class="btn btn-primary" onclick="saveAnswer()">Save today's drop</button>
+    </div>
+
+    <div id="kidDoneCard" class="card warm hidden center">
+      <div class="done-check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#1f6f5c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <h2>That's today, done.</h2>
+      <p class="muted" id="doneMsg">Nice. Little by little, a picture of you shows up.</p>
+      <button class="btn btn-soft" onclick="editToday()">Edit today's drop</button>
+    </div>
+  </section>
+
+  <!-- KID HISTORY -->
+  <section id="s-kidlog" class="screen">
+    <div class="topbar"><h2>Your week of noticing</h2></div>
+    <div id="kidEntries"></div>
+    <div id="kidEmpty" class="card center muted hidden">Nothing here yet. Your first drop will show up here.</div>
+  </section>
+
+  <!-- PARENT HOME -->
+  <section id="s-parent" class="screen">
+    <div class="topbar">
+      <div><b>Noticing</b> <span class="pill-user" id="parentKidName"></span></div>
+      <span class="link" onclick="switchUser()">switch</span>
+    </div>
+    <div class="card warm">
+      <p class="small" style="margin:0">You're keeping your <b>own</b> notes — your child doesn't see these. Later, you'll compare what each of you noticed. The gaps are usually the interesting part.</p>
+    </div>
+    <div class="card">
+      <span class="prompt-label">This week, notice…</span>
+      <p class="prompt-q" id="pPromptQ">…</p>
+      <textarea id="pAnswer" placeholder="A quick observation…"></textarea>
+      <div style="height:12px"></div>
+      <button class="btn btn-primary" onclick="saveParent()">Save note</button>
+      <p class="note">Try for 2–3 short notes a week. Watch, don't quiz.</p>
+    </div>
+    <div id="parentEntries"></div>
+  </section>
+
+  <!-- GROWN-UP / EXPORT -->
+  <section id="s-grownup" class="screen">
+    <div class="topbar"><h2>Grown-up corner</h2><span class="link" onclick="show('s-onboard')">done</span></div>
+    <div class="card">
+      <h2 class="small" style="margin:0 0 8px">Phase 1 — the Wizard-of-Oz step</h2>
+      <p class="small muted">The AI "brain" isn't wired in yet (that's Phase 2). For now: let the kids log for 1–2 weeks, then tap <b>Export</b> and paste the text to Claude. I'll run the decipher + durability read by hand so you can feel whether the magic is real before we automate it.</p>
+    </div>
+    <div class="card">
+      <button class="btn btn-primary" onclick="buildExport()">Export everything (all users on this device)</button>
+      <button class="btn btn-soft" style="margin-top:10px" onclick="copyExport()">Copy to clipboard</button>
+      <pre class="export hidden" id="exportBox"></pre>
+    </div>
+    <div class="card">
+      <p class="small muted" style="margin:0 0 10px">Danger zone — clears all saved drops on this device.</p>
+      <button class="btn btn-soft" style="color:#c0392b;border-color:#f3c4bf" onclick="wipe()">Erase all data</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- TABBAR -->
+<nav class="tabbar hidden" id="tabbar"></nav>
+
+<script>
+///////////////// DATA ///////////////
+const DAILY_PROMPTS = [
+  "What made you lose track of time today?",
+  "What did you do when nothing was required of you?",
+  "What made you curious — something you wanted to understand better?",
+  "What drained you or made you want to leave the room?",
+  "What did someone come to you for, or thank you for?",
+  "What annoyed you that other people didn't seem to mind?",
+  "What did you make, fix, build, or figure out today?",
+  "What did you watch, read, or scroll — then go deeper on after?"
+];
+const WHY_PROMPT = "Pick one thing this week you kept coming back to. Why that one? What was it about it?";
+const PARENT_PROMPTS = [
+  "What did they gravitate toward this week, without being asked?",
+  "What did they light up talking about?",
+  "What did they avoid or drag their feet on?",
+  "Did anything about them surprise you this week?"
+];
+const DONE_MSGS = [
+  "Nice. Little by little, a picture of you shows up.",
+  "Saved. The more you notice, the clearer it gets.",
+  "Done for today. No rush — this is yours.",
+  "Got it. Come back tomorrow for the next one."
+];
+
+///////////////// STATE ///////////////
+let state = JSON.parse(localStorage.getItem('mirror_v1') || '{}');
+if(!state.users) state = {users:{}, current:null};
+function save(){ localStorage.setItem('mirror_v1', JSON.stringify(state)); }
+function todayKey(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function dayNum(){ return Math.floor(Date.now()/864e5); }
+function uid(role,name){ return role+':'+name.trim().toLowerCase(); }
+function cur(){ return state.current ? state.users[state.current] : null; }
+
+///////////////// NAV ///////////////
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  const showTabs = ['s-kid','s-kidlog','s-parent'].includes(id);
+  document.getElementById('tabbar').classList.toggle('hidden', !showTabs);
+  if(showTabs) renderTabs(id);
+}
+let pendingRole=null;
+function chooseRole(role){
+  pendingRole=role;
+  document.getElementById('nameTitle').textContent = role==='kid' ? "What should we call you?" : "Your child's name?";
+  document.getElementById('nameSub').textContent = role==='kid' ? "First name or a nickname is perfect." : "So your notes line up with their drops.";
+  document.getElementById('nameInput').value='';
+  show('s-name');
+  setTimeout(()=>document.getElementById('nameInput').focus(),200);
+}
+function saveName(){
+  const name=document.getElementById('nameInput').value.trim();
+  if(!name){ document.getElementById('nameInput').focus(); return; }
+  const id=uid(pendingRole,name);
+  if(!state.users[id]) state.users[id]={role:pendingRole,name:name,entries:[],created:todayKey()};
+  state.current=id; save();
+  enter();
+}
+function switchUser(){ state.current=null; save(); show('s-onboard'); }
+function enter(){
+  const u=cur();
+  if(!u){ show('s-onboard'); return; }
+  if(u.role==='kid'){ renderKid(); show('s-kid'); }
+  else { renderParent(); show('s-parent'); }
+}
+
+///////////////// KID ///////////////
+function renderTabs(active){
+  const u=cur(); if(!u) return;
+  const tb=document.getElementById('tabbar');
+  if(u.role==='kid'){
+    tb.innerHTML=`
+     <button class="${active==='s-kid'?'on':''}" onclick="renderKid();show('s-kid')">
+       <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M5 10c3 0 7 0 7 4M19 10c-3 0-7 0-7 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Today</button>
+     <button class="${active==='s-kidlog'?'on':''}" onclick="renderKidLog();show('s-kidlog')">
+       <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2"/><path d="M8 9h8M8 13h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>My week</button>`;
+  } else {
+    tb.innerHTML=`<button class="on" onclick="renderParent();show('s-parent')">
+       <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M5 10c3 0 7 0 7 4M19 10c-3 0-7 0-7 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Notice</button>`;
+  }
+}
+function pickPrompt(){
+  const d=new Date();
+  if(d.getDay()===0) return {kind:'Weekly · the why', q:WHY_PROMPT, why:true}; // Sundays
+  return {kind:"Today's drop", q:DAILY_PROMPTS[dayNum()%DAILY_PROMPTS.length], why:false};
+}
+function todayEntry(){ const u=cur(); return u.entries.find(e=>e.date===todayKey()); }
+function renderKid(){
+  const u=cur();
+  document.getElementById('kidName').textContent=u.name;
+  document.getElementById('kidHi').textContent='Hi, '+u.name.split(' ')[0];
+  document.getElementById('streakNum').textContent=computeStreak(u);
+  const p=pickPrompt();
+  document.getElementById('promptKind').textContent=p.kind;
+  document.getElementById('promptQ').textContent=p.q;
+  const te=todayEntry();
+  if(te){ showDone(); } else { showPromptForm(p); }
+}
+function showPromptForm(p){
+  document.getElementById('kidPromptCard').classList.remove('hidden');
+  document.getElementById('kidDoneCard').classList.add('hidden');
+  const te=todayEntry();
+  document.getElementById('answer').value = te?te.text:'';
+}
+function showDone(){
+  document.getElementById('kidPromptCard').classList.add('hidden');
+  document.getElementById('kidDoneCard').classList.remove('hidden');
+  document.getElementById('doneMsg').textContent=DONE_MSGS[dayNum()%DONE_MSGS.length];
+}
+function editToday(){ const p=pickPrompt(); showPromptForm(p); }
+function saveAnswer(){
+  const t=document.getElementById('answer').value.trim();
+  if(!t){ document.getElementById('answer').focus(); return; }
+  const u=cur(); const p=pickPrompt(); const k=todayKey();
+  let e=u.entries.find(x=>x.date===k);
+  if(e){ e.text=t; e.q=p.q; }
+  else { u.entries.push({date:k, ts:Date.now(), q:p.q, kind:p.why?'why':'daily', text:t}); }
+  save();
+  document.getElementById('streakNum').textContent=computeStreak(u);
+  showDone();
+}
+function computeStreak(u){
+  if(!u.entries.length) return 0;
+  const days=new Set(u.entries.map(e=>e.date));
+  let streak=0; let d=new Date();
+  for(;;){
+    const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    if(days.has(k)){ streak++; d.setDate(d.getDate()-1); }
+    else if(streak===0 && k===todayKey()){ d.setDate(d.getDate()-1); } // today not done yet, keep counting back
+    else break;
+  }
+  return streak;
+}
+function renderKidLog(){
+  const u=cur(); const box=document.getElementById('kidEntries');
+  const sorted=[...u.entries].sort((a,b)=>b.ts-a.ts);
+  document.getElementById('kidEmpty').classList.toggle('hidden', sorted.length>0);
+  box.innerHTML=sorted.map(e=>`<div class="entry"><div class="when">${niceDate(e.date)} ${e.kind==='why'?'· the why':''}</div><div class="eq">${esc(e.q)}</div><div class="ea">${esc(e.text)}</div></div>`).join('');
+}
+
+///////////////// PARENT ///////////////
+function renderParent(){
+  const u=cur();
+  document.getElementById('parentKidName').textContent='· '+u.name;
+  document.getElementById('pPromptQ').textContent=PARENT_PROMPTS[dayNum()%PARENT_PROMPTS.length];
+  const box=document.getElementById('parentEntries');
+  const sorted=[...u.entries].sort((a,b)=>b.ts-a.ts);
+  box.innerHTML=sorted.map(e=>`<div class="entry"><div class="when">${niceDate(e.date)}</div><div class="eq">${esc(e.q)}</div><div class="ea">${esc(e.text)}</div></div>`).join('');
+}
+function saveParent(){
+  const t=document.getElementById('pAnswer').value.trim();
+  if(!t){ document.getElementById('pAnswer').focus(); return; }
+  const u=cur();
+  u.entries.push({date:todayKey(), ts:Date.now(), q:document.getElementById('pPromptQ').textContent, kind:'parent', text:t});
+  save(); document.getElementById('pAnswer').value=''; renderParent();
+}
+
+///////////////// VOICE ///////////////
+let rec=null, recing=false;
+function toggleMic(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ document.getElementById('micLabel').textContent='Voice not supported here — just type'; return; }
+  if(recing){ rec.stop(); return; }
+  rec=new SR(); rec.lang='en-IN'; rec.interimResults=true; rec.continuous=true;
+  let base=document.getElementById('answer').value;
+  rec.onstart=()=>{recing=true; document.getElementById('micBtn').classList.add('rec'); document.getElementById('micLabel').textContent='Listening… tap to stop';};
+  rec.onend=()=>{recing=false; document.getElementById('micBtn').classList.remove('rec'); document.getElementById('micLabel').textContent='Or say it out loud';};
+  rec.onresult=(ev)=>{ let txt=''; for(let i=0;i<ev.results.length;i++) txt+=ev.results[i][0].transcript; document.getElementById('answer').value=(base?base+' ':'')+txt; };
+  rec.start();
+}
+
+///////////////// EXPORT ///////////////
+function buildExport(){
+  let out='THE MIRROR — DATA EXPORT ('+todayKey()+')\n\n';
+  Object.values(state.users).forEach(u=>{
+    out+='==== '+u.role.toUpperCase()+': '+u.name+' (since '+u.created+') ====\n';
+    [...u.entries].sort((a,b)=>a.ts-b.ts).forEach(e=>{
+      out+='['+e.date+']('+(e.kind)+') Q: '+e.q+'\n   A: '+e.text+'\n';
+    });
+    out+='\n';
+  });
+  out+='--- For Claude: extract interest ingredients, the why underneath, and durability signals (self-initiation, recurrence, survives-friction, depth-seeking, origin, energy). Label each interest Still exploring / Showing staying power / Looks trigger-bound. Do NOT name a stream or career. ---';
+  const box=document.getElementById('exportBox'); box.textContent=out; box.classList.remove('hidden');
+}
+function copyExport(){
+  buildExport();
+  const t=document.getElementById('exportBox').textContent;
+  navigator.clipboard?.writeText(t).then(()=>alert('Copied. Paste it to Claude.'),()=>fallbackCopy(t));
+}
+function fallbackCopy(t){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); alert('Copied.'); }
+function wipe(){ if(confirm('Erase ALL saved drops on this device? This cannot be undone.')){ state={users:{},current:null}; save(); show('s-onboard'); } }
+
+///////////////// UTIL ///////////////
+function esc(s){ return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function niceDate(d){ const [y,m,da]=d.split('-'); const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]; return mo+' '+(+da); }
+
+///////////////// BOOT ///////////////
+(function(){ if(state.current && cur()) enter(); else show('s-onboard'); })();
+</script>
+</body>
+</html>
