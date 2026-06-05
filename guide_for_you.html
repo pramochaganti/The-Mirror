@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Mirror — Your Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f4faf8;
+    color: #27332f;
+    min-height: 100vh;
+    padding: 32px 20px;
+  }
+
+  .page {
+    max-width: 680px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(31,111,92,.12);
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0f4c38 0%, #1a7a5c 60%, #1f6f5c 100%);
+    padding: 36px 40px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -40%; right: -10%;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.05);
+  }
+  .header-tag {
+    display: inline-block;
+    background: rgba(255,255,255,.18);
+    color: rgba(255,255,255,.9);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    color: #fff;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -.5px;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .header p {
+    color: rgba(255,255,255,.78);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 480px;
+  }
+  .mirror-emoji {
+    position: absolute;
+    right: 36px; top: 28px;
+    font-size: 56px;
+    opacity: .9;
+  }
+
+  /* Body */
+  .body { padding: 36px 40px; }
+
+  /* Section */
+  .section { margin-bottom: 30px; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #1f6f5c;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e9f5f1;
+  }
+
+  /* Habit box */
+  .habit-box {
+    background: #f4faf8;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 10px;
+  }
+  .habit-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 9px 0;
+    border-bottom: 1px solid #e9f5f1;
+    font-size: 14.5px;
+    line-height: 1.5;
+  }
+  .habit-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .habit-row:first-child { padding-top: 0; }
+  .habit-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  /* Do/Don't grid */
+  .dd-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .dd-col { }
+  .dd-head {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dd-head.do  { color: #059669; }
+  .dd-head.dont { color: #dc2626; }
+  .dd-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin-bottom: 9px;
+    color: #27332f;
+  }
+  .dd-tick { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+  /* Privacy strip */
+  .privacy-strip {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #92400e;
+  }
+  .privacy-strip .pi { font-size: 20px; flex-shrink: 0; }
+
+  /* Pull quote */
+  .pull-quote {
+    border-left: 3px solid #1f6f5c;
+    padding: 12px 18px;
+    font-size: 15.5px;
+    font-style: italic;
+    color: #27332f;
+    background: #f4faf8;
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid #e9f5f1;
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #7b8a85;
+  }
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #1f6f5c;
+    font-size: 13px;
+  }
+  .logo-dot {
+    width: 24px; height: 24px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #1f6f5c, #2e9b80);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page { box-shadow: none; border-radius: 0; max-width: 100%; }
+    .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .habit-box { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .privacy-strip { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  @media (max-width: 600px) {
+    .body { padding: 24px 20px; }
+    .header { padding: 28px 24px 24px; }
+    .mirror-emoji { display: none; }
+    .dd-grid { grid-template-columns: 1fr; }
+    .footer { padding: 16px 20px; flex-direction: column; gap: 8px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <span class="mirror-emoji">🪞</span>
+    <div class="header-tag">For you</div>
+    <h1>What is The Mirror,<br>and what do you do?</h1>
+    <p>A two-minute read before you start. No tests, no grades — just noticing what pulls you in.</p>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+
+    <!-- What it is -->
+    <div class="section">
+      <div class="section-title">What it actually is</div>
+      <div class="pull-quote">
+        "It's not about figuring out what you want to do with your life. It's just about noticing what you're already drawn to — and letting that picture build up over time."
+      </div>
+      <p style="font-size:14.5px;line-height:1.65;color:#27332f">
+        The Mirror asks you one question a day. Your answer goes into a quiet AI that spots patterns in what pulls your attention — not to label you, but to show you things you might not have noticed yourself. Over weeks, a picture builds. You own it. You edit it. You decide what's true.
+      </p>
+    </div>
+
+    <!-- How it works -->
+    <div class="section">
+      <div class="section-title">How it works, day to day</div>
+      <div class="habit-box">
+        <div class="habit-row"><span class="habit-icon">☀️</span><div>Open the app once a day. One question appears — what pulled you today, what you chose to do when no one was watching, what made you curious.</div></div>
+        <div class="habit-row"><span class="habit-icon">✍️</span><div>Answer in a line or two — or speak it out loud. Short, honest, unpolished. That's exactly what the app needs.</div></div>
+        <div class="habit-row"><span class="habit-icon">✅</span><div>Done. Takes 30 seconds. Come back tomorrow.</div></div>
+        <div class="habit-row"><span class="habit-icon">🪞</span><div>Once a week, the app shows you 2–3 gentle observations about what it's noticing. You tap yes, sort of, or not really — and edit anything that feels off. <b>Your edit is what stays.</b></div></div>
+        <div class="habit-row"><span class="habit-icon">🌿</span><div>Over time, your "Pulls" tab fills up — interests the app has seen you return to, with a sense of whether they're just sprouting or genuinely taking root.</div></div>
+      </div>
+    </div>
+
+    <!-- Do's and Don'ts -->
+    <div class="section">
+      <div class="section-title">Do's and don'ts</div>
+      <div class="dd-grid">
+        <div class="dd-col">
+          <div class="dd-head do">✓ Do</div>
+          <div class="dd-item"><span class="dd-tick">✓</span><span>Answer honestly — even if the answer feels small or embarrassing. <i>"I spent 2 hours watching paint dry videos"</i> is useful. <i>"I studied hard"</i> is not.</span></div>
+          <div class="dd-item"><span class="dd-tick">✓</span><span>Keep it short. Two sentences is plenty. The app doesn't need essays.</span></div>
+          <div class="dd-item"><span class="dd-tick">✓</span><span>Edit or delete any entry that doesn't feel right. Everything here is yours to change.</span></div>
+          <div class="dd-item"><span class="dd-tick">✓</span><span>Disagree with the weekly mirror when it gets it wrong. Your "not really" is the most useful data point it can get.</span></div>
+          <div class="dd-item"><span class="dd-tick">✓</span><span>Skip days. There's no punishment. The streak resets; the picture doesn't disappear.</span></div>
+        </div>
+        <div class="dd-col">
+          <div class="dd-head dont">✗ Don't</div>
+          <div class="dd-item"><span class="dd-tick" style="color:#dc2626">✗</span><span>Write what sounds impressive or what you think a parent wants to see. It only works on real answers.</span></div>
+          <div class="dd-item"><span class="dd-tick" style="color:#dc2626">✗</span><span>Stress about being consistent. Open it when you feel like it. Even 3 days a week is enough.</span></div>
+          <div class="dd-item"><span class="dd-tick" style="color:#dc2626">✗</span><span>Treat the weekly mirror as a verdict. It's a question, not a label. If it feels wrong, say so.</span></div>
+          <div class="dd-item"><span class="dd-tick" style="color:#dc2626">✗</span><span>Share your phone with a parent during your session. Your entries are yours — they can't see them unless you choose to show them.</span></div>
+          <div class="dd-item"><span class="dd-tick" style="color:#dc2626">✗</span><span>Expect instant answers. This is a slow-build thing. The interesting stuff shows up in weeks 3–6.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Privacy -->
+    <div class="section">
+      <div class="section-title">Your privacy</div>
+      <div class="privacy-strip">
+        <span class="pi">🔒</span>
+        <span>Your entries live only on <b>your phone</b>. An AI reads each one to find patterns — it isn't stored on any server. Your parent can't see what you write unless you decide to show them. You can delete everything with one tap, any time.</span>
+      </div>
+    </div>
+
+    <!-- One line to remember -->
+    <div class="section" style="margin-bottom:0">
+      <div class="section-title">The one thing to remember</div>
+      <div class="pull-quote" style="font-style:normal;font-weight:600;font-size:16px">
+        This isn't about figuring out the "right" stream. It's about building a clearer picture of what genuinely pulls you — so that whatever decision comes, it feels like yours. 💛
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-logo">
+      <div class="logo-dot">🪞</div>
+      The Mirror
+    </div>
+    <span>Not a test. Not a verdict. Just a mirror.</span>
+  </div>
+
+</div>
+</body>
+</html>
